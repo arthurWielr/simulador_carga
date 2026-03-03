@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Simulador de Carga - Base Técnica (CEMIG)</title>
+    <title>Simulador de Carga - CEMIG</title>
 
     <!-- Chart.js para plot da curva -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,20 +22,38 @@
         height: 100%;
         margin: 0;
         font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        font-size: 20px;
         background: var(--bg);
         color: #122028;
       }
+
       .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 98%;
+        height: 50px; /* aumente um pouco a altura */
         background: linear-gradient(
           90deg,
           var(--cemig-blue),
           var(--cemig-accent)
         );
         color: #fff;
-        padding: 16px 22px;
         font-weight: 700;
+        display: flex;
+        align-items: center; /* centraliza verticalmente */
+        justify-content: space-between;
+        padding: 0 22px;
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        z-index: 1000;
       }
+
+      .header img {
+        max-height: 90%; /* ocupa até 70% da altura do header */
+        height: auto; /* mantém proporção */
+        width: auto; /* mantém proporção */
+      }
+
       .wrap {
         max-width: 1100px;
         margin: 20px auto;
@@ -63,6 +81,19 @@
         grid-template-columns: 1fr 1fr 1fr;
         gap: 14px;
         align-items: start;
+      }
+
+      .page-layout {
+        display: grid;
+        grid-template-columns: 1fr 500px; /* coluna principal + coluna lateral */
+        gap: 10px;
+      }
+
+      .sidebar {
+        position: fixed; /* mantém fixo na lateral */
+        top: 35px; /* abaixo do header fixo */
+        right: 15px; /* afastado da borda direita */
+        width: 500px; /* largura do box lateral */
       }
 
       /* Linha Qtd | Disjuntor (aparece como um row) */
@@ -94,7 +125,7 @@
         border-radius: 8px;
         border: 1px solid #000000;
         background: #ffffff;
-        font-size: 14px;
+        font-size: 12px;
         color: #000000;
         box-sizing: border-box;
       }
@@ -128,11 +159,12 @@
       .result {
         white-space: pre-line;
         background: linear-gradient(180deg, #fff, #fff);
-        padding: 12px;
+        padding: 14px;
         border-radius: 8px;
         border: 1px solid #000000;
         margin-top: 12px;
         color: #000000;
+        font-size: 12px;
       }
       .two-col {
         display: grid;
@@ -186,217 +218,292 @@
     </style>
   </head>
   <body>
-    <div class="header">Simulador de Carga — Base Técnica (CEMIG)</div>
+    <div class="header">
+      Simulador de Carga
+      <img src="logo.png" alt="Logo" />
+    </div>
+    <div class="page-layout">
+      <div class="wrap">
+        <!-- Top - Transformador / Meta -->
+        <div class="card">
+          <h2>Dados do Transformador</h2>
+          <p class="lead">Informe dados do transformador.</p>
 
-    <div class="wrap">
-      <!-- Top - Transformador / Meta -->
-      <div class="card">
-        <h2>Dados do Transformador</h2>
-        <p class="lead">Informe dados do transformador.</p>
+          <div class="three-col" style="margin-top: 4px">
+            <div>
+              <label>Transformador</label>
+              <input id="trafo" type="text" />
+              <label style="margin-top: 30px">Demanda residencial</label>
+              <input
+                id="demanda_residencial"
+                type="number"
+                value=""
+                step="0.01"
+              />
+              <label>Demanda comercial</label>
+              <input
+                id="demanda_comercial"
+                type="number"
+                value=""
+                step="0.01"
+              />
+              <label>Demanda industrial</label>
+              <input
+                id="demanda_industrial"
+                type="number"
+                value=""
+                step="0.01"
+              />
+              <label>Demanda rural</label>
+              <input id="demanda_rural" type="number" value="" step="0.01" />
+              <label>Demanda outros</label>
+              <input id="demanda_outros" type="number" value="" step="0.01" />
+              <label>Demanda Iluminação Pública</label>
+              <input
+                id="demanda_iluminação"
+                type="number"
+                value=""
+                step="0.01"
+              />
+            </div>
 
-        <div class="three-col" style="margin-top: 4px">
-          <div>
-            <label>Transformador</label>
-            <input id="trafo" type="text" />
-            <label style="margin-top: 30px">Demanda residencial</label>
-            <input id="demResTot" type="number" value="" step="0.01" />
-            <label>Demanda comercial</label>
-            <input id="demComTot" type="number" value="" step="0.01" />
-            <label>Demanda industrial</label>
-            <input id="demi" type="number" value="" step="0.01" />
-            <label>Demanda rural</label>
-            <input id="ip_val" type="number" value="" step="0.01" />
-            <label>Demanda outros</label>
-            <input id="ip_val" type="number" value="" step="0.01" />
-            <label>Demanda Iluminação Pública</label>
-            <input id="ip_val" type="number" value="" step="0.01" />
+            <div>
+              <label> Potência do transformador (kVA)</label>
+              <input id="pottr" type="number" value="" step="1" readonly />
+              <label style="margin-top: 30px"
+                >Quantidade de consumidores residenciais existentes</label
+              >
+              <input id="uc_residencial" type="number" value="" />
+              <label>Quantidade de consumidores comerciais existentes</label>
+              <input id="uc_comercial" type="number" value="" />
+              <label>Quantidade de consumidores industriais existentes</label>
+              <input id="uc_industrial" type="number" value="" />
+              <label>Quantidade de consumidores rurais existentes</label>
+              <input id="uc_rural" type="number" value="" />
+              <label>Quantidade de consumidores outros existentes</label>
+              <input id="uc_outros" type="number" value="" />
+            </div>
+
+            <div>
+              <label>Tipo de Transformador</label>
+              <select id="tipo_TRF">
+                <option value="">Convencional</option>
+                <option value="1">Autoprotegido</option>
+              </select>
+            </div>
           </div>
+        </div>
 
+        <div class="card">
+          <h2>Local de atendimento</h2>
+          <div class="three-col"></div>
           <div>
-            <label> Potência do transformador (kVA)</label>
-            <input id="pottr" type="number" value="" step="1" readonly />
-            <label style="margin-top: 30px"
-              >Quantidade de consumidores residenciais existentes</label
-            >
-            <input id="quantiResTot" type="number" value="" />
-            <label>Quantidade de consumidores comerciais existentes</label>
-            <input id="quantComTot" type="number" value="" />
-            <label>Quantidade de consumidores industriais existentes</label>
-            <input id="numcsi" type="number" value="" />
-            <label>Quantidade de consumidores rurais existentes</label>
-            <input id="quantComTot" type="number" value="" />
-            <label>Quantidade de consumidores outros existentes</label>
-            <input id="numcsi" type="number" value="" />
+            <label style="margin-top: 10px">Zona</label>
+            <select id="zona">
+              <option value="urbana">Área Urbana</option>
+              <option value="rural">Área Rural</option>
+            </select>
           </div>
-
           <div>
-            <label>Tipo de Transformador</label>
-            <select id="tipo_TRF">
-              <option value="">Convencional</option>
-              <option value="1">Autoprotegido</option>
+            <label style="margin-top: 10px">Município</label>
+            <select id="municipio">
+              <option value=""></option>
             </select>
           </div>
         </div>
-      </div>
 
-      <div class="card">
-        <h2>Local de atendimento</h2>
-        <div class="three-col"></div>
-        <div>
-          <label style="margin-top: 10px">Zona</label>
-          <select id="zona">
-            <option value="urbana">Área Urbana</option>
-            <option value="rural">Área Rural</option>
-          </select>
-        </div>
-        <div>
-          <label style="margin-top: 10px">Município</label>
-          <select id="municipio">
-            <option value=""></option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Consumidores: Residencial / Comercial / Industrial -->
-      <div class="card">
-        <h2>Novos Consumidores</h2>
-        <div class="three-col">
-          <div>
-            <label>Quantidade</label>
-            <input id="qtd_geral" type="number" value="" min="0" />
+        <!-- Consumidores: Residencial / Comercial / Industrial -->
+        <div class="card">
+          <h2>Novos Consumidores</h2>
+          <div class="three-col">
+            <div>
+              <label>Quantidade</label>
+              <input id="qtd_geral" type="number" value="" min="0" />
+            </div>
+            <div>
+              <label>Disjuntor Geral</label>
+              <select id="disj_geral"></select>
+            </div>
           </div>
-          <div>
-            <label>Disjuntor Geral</label>
-            <select id="disj_geral"></select>
-          </div>
-        </div>
-        <div class="three-col">
-          <div>
-            <h3 style="color: var(--black); margin: 10 0 8px">Residencial</h3>
-            <div style="margin-top: 10px">
-              <div class="row">
-                <div>
-                  <label>Quantidade</label>
-                  <input class="qtd" id="res1" type="number" value="" min="0" />
+          <div class="three-col">
+            <div>
+              <h3 style="color: var(--black); margin: 10 0 8px">Residencial</h3>
+              <div style="margin-top: 10px">
+                <div class="row">
+                  <div>
+                    <label>Quantidade</label>
+                    <input
+                      class="qtd"
+                      id="res1"
+                      type="number"
+                      value=""
+                      min="0"
+                    />
+                  </div>
+                  <div class="dq">
+                    <label>Disjuntor</label>
+                    <select id="dres1"></select>
+                  </div>
                 </div>
-                <div class="dq">
-                  <label>Disjuntor</label>
-                  <select id="dres1"></select>
+
+                <div class="row" style="margin-top: 2px">
+                  <div>
+                    <input
+                      class="qtd"
+                      id="res2"
+                      type="number"
+                      value=""
+                      min="0"
+                    />
+                  </div>
+                  <div class="dq">
+                    <select id="dres2"></select>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top: 2px">
+                  <div>
+                    <input
+                      class="qtd"
+                      id="res3"
+                      type="number"
+                      value=""
+                      min="0"
+                    />
+                  </div>
+                  <div class="dq">
+                    <select id="dres3"></select>
+                  </div>
                 </div>
               </div>
-
-              <div class="row" style="margin-top: 2px">
-                <div>
-                  <input class="qtd" id="res2" type="number" value="" min="0" />
+            </div>
+            <div>
+              <h3 style="color: var(--black); margin: 10 0 8px">Comercial</h3>
+              <div style="margin-top: 10px">
+                <div class="row">
+                  <div>
+                    <label>Quantidade</label>
+                    <input
+                      class="qtd"
+                      id="com1"
+                      type="number"
+                      value=""
+                      min="0"
+                    />
+                  </div>
+                  <div class="dq">
+                    <label>Disjuntor</label>
+                    <select id="dcom1"></select>
+                  </div>
                 </div>
-                <div class="dq">
-                  <select id="dres2"></select>
+
+                <div class="row" style="margin-top: 2px">
+                  <div>
+                    <input
+                      class="qtd"
+                      id="com2"
+                      type="number"
+                      value=""
+                      min="0"
+                    />
+                  </div>
+                  <div class="dq">
+                    <select id="dcom2"></select>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top: 2px">
+                  <div>
+                    <input
+                      class="qtd"
+                      id="com3"
+                      type="number"
+                      value=""
+                      min="0"
+                    />
+                  </div>
+                  <div class="dq">
+                    <select id="dcom3"></select>
+                  </div>
                 </div>
               </div>
-
-              <div class="row" style="margin-top: 2px">
-                <div>
-                  <input class="qtd" id="res3" type="number" value="" min="0" />
+            </div>
+            <div>
+              <h3 style="color: var(--black); margin: 10 0 8px">Industrial</h3>
+              <div style="margin-top: 10px">
+                <div class="row">
+                  <div>
+                    <label>Quantidade</label>
+                    <input
+                      class="qtd"
+                      id="ind1"
+                      type="number"
+                      value=""
+                      min="0"
+                    />
+                  </div>
+                  <div class="dq">
+                    <label>Disjuntor</label>
+                    <select id="dind1"></select>
+                  </div>
                 </div>
-                <div class="dq">
-                  <select id="dres3"></select>
+
+                <div class="row" style="margin-top: 2px">
+                  <div>
+                    <input
+                      class="qtd"
+                      id="ind2"
+                      type="number"
+                      value=""
+                      min="0"
+                    />
+                  </div>
+                  <div class="dq">
+                    <select id="dind2"></select>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top: 2px">
+                  <div>
+                    <input
+                      class="qtd"
+                      id="ind3"
+                      type="number"
+                      value=""
+                      min="0"
+                    />
+                  </div>
+                  <div class="dq">
+                    <select id="dind3"></select>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div>
-            <h3 style="color: var(--black); margin: 10 0 8px">Comercial</h3>
-            <div style="margin-top: 10px">
-              <div class="row">
-                <div>
-                  <label>Quantidade</label>
-                  <input class="qtd" id="com1" type="number" value="" min="0" />
-                </div>
-                <div class="dq">
-                  <label>Disjuntor</label>
-                  <select id="dcom1"></select>
-                </div>
-              </div>
+        </div>
 
-              <div class="row" style="margin-top: 2px">
-                <div>
-                  <input class="qtd" id="com2" type="number" value="" min="0" />
-                </div>
-                <div class="dq">
-                  <select id="dcom2"></select>
-                </div>
-              </div>
-
-              <div class="row" style="margin-top: 2px">
-                <div>
-                  <input class="qtd" id="com3" type="number" value="" min="0" />
-                </div>
-                <div class="dq">
-                  <select id="dcom3"></select>
-                </div>
-              </div>
-            </div>
+        <!-- Ajustes e Botões -->
+        <div class="card">
+          <h2>Parâmetros & Ações</h2>
+          <div class="actions">
+            <button id="btnCalc">Calcular</button>
+            <button id="btnReset" class="secondary">Limpar</button>
           </div>
-          <div>
-            <h3 style="color: var(--black); margin: 10 0 8px">Industrial</h3>
-            <div style="margin-top: 10px">
-              <div class="row">
-                <div>
-                  <label>Quantidade</label>
-                  <input class="qtd" id="ind1" type="number" value="" min="0" />
-                </div>
-                <div class="dq">
-                  <label>Disjuntor</label>
-                  <select id="dind1"></select>
-                </div>
-              </div>
+        </div>
 
-              <div class="row" style="margin-top: 2px">
-                <div>
-                  <input class="qtd" id="ind2" type="number" value="" min="0" />
-                </div>
-                <div class="dq">
-                  <select id="dind2"></select>
-                </div>
-              </div>
-
-              <div class="row" style="margin-top: 2px">
-                <div>
-                  <input class="qtd" id="ind3" type="number" value="" min="0" />
-                </div>
-                <div class="dq">
-                  <select id="dind3"></select>
-                </div>
-              </div>
+        <!-- Gráfico e resumo -->
+        <div class="sidebar">
+          <div class="card">
+            <h2>Curva Horária & Resultado</h2>
+            <div id="msg" class="result" style="margin-top: 12px"></div>
+            <div>
+              <canvas id="chart" height="200"></canvas>
             </div>
           </div>
         </div>
+
+        <footer>Simulador de Carga CEMIG - PE/EM</footer>
       </div>
-
-      <!-- Ajustes e Botões -->
-      <div class="card">
-        <h2>Parâmetros & Ações</h2>
-        <div class="actions">
-          <button id="btnCalc">Calcular</button>
-          <button id="btnReset" class="secondary">Limpar</button>
-        </div>
-        
-      </div>
-
-      <!-- Gráfico e resumo -->
-<div class="card">
-  <h2>Curva Horária & Resultado</h2>
-  <div class="two-col">
-    <div id="msg" class="result" style="margin-top: 12px"></div>
-    <div>
-      <canvas id="chart" height="200"></canvas>
-    </div>
-  </div>
-</div>
-
-
-
-      <footer>Simulador de Carga CEMIG - PE/EM</footer>
     </div>
 
     <script>
@@ -404,31 +511,31 @@
       const DISJUNTORES = [
         ["", 0, 0.0],
         ["A1/G1-MONO 40 A", 1, 5.0],
-        ["A2/G2- MONO 50 A", 2, 6.5],
-        ["A3/G3- MONO 63/70 A", 3, 10.0],
-        ["B1/H1- BI 40 A", 4, 10.0],
+        ["A2/G2-MONO 50 A", 2, 6.5],
+        ["A3/G3-MONO 63/70 A", 3, 10.0],
+        ["B1/H1-BI 40 A", 4, 10.0],
         ["B2/H2-BI 60/63 A", 5, 15.0],
-        ["H3- BI 100 A", 6, 20.0],
+        ["H3-BI 100 A", 6, 20.0],
         ["H4-BI 125 A", 7, 30.0],
         ["H5-BI 150 A", 8, 36.0],
-        ["H6- BI 200 A", 9, 50.0],
-        ["C1- TRI 40", 10, 15.0],
-        ["C2- TRI 60/63 A", 11, 23.0],
-        ["C3- TRI 70/80 A", 12, 27.0],
-        ["C4- TRI 100 A", 13, 38.0],
-        ["C5- TRI 120/125 A", 14, 47.0],
-        ["C6- TRI 150 A", 15, 57.0],
-        ["C7- TRI 175 A", 16, 66.0],
-        ["C8- TRI 200 A", 17, 75.0],
-        ["F1- TRI 225 A", 18, 86.0],
-        ["F2- TRI 250", 19, 95.0],
-        ["F3- TRI 300/315/320 A", 20, 114.0],
-        ["F4- TRI 400 A", 21, 152.0],
-        ["F5- TRI 450 A", 22, 171.0],
-        ["F6- TRI 500 A", 23, 188.0],
-        ["F7- TRI 600/630 A", 24, 228.0],
-        ["F8- TRI 700 A", 25, 266.0],
-        ["F9- TRI 800 A", 26, 304.0],
+        ["H6-BI 200 A", 9, 50.0],
+        ["C1-TRI 40", 10, 15.0],
+        ["C2-TRI 60/63 A", 11, 23.0],
+        ["C3-TRI 70/80 A", 12, 27.0],
+        ["C4-TRI 100 A", 13, 38.0],
+        ["C5-TRI 120/125 A", 14, 47.0],
+        ["C6-TRI 150 A", 15, 57.0],
+        ["C7-TRI 175 A", 16, 66.0],
+        ["C8-TRI 200 A", 17, 75.0],
+        ["F1-TRI 225 A", 18, 86.0],
+        ["F2-TRI 250", 19, 95.0],
+        ["F3-TRI 300/315/320 A", 20, 114.0],
+        ["F4-TRI 400 A", 21, 152.0],
+        ["F5-TRI 450 A", 22, 171.0],
+        ["F6-TRI 500 A", 23, 188.0],
+        ["F7-TRI 600/630 A", 24, 228.0],
+        ["F8-TRI 700 A", 25, 266.0],
+        ["F9-TRI 800 A", 26, 304.0],
         ["TRI 1000 A", 27, 342.0],
         ["TRI 1200 A", 28, 456.0],
         ["TRI 1500 A", 29, 570.0],
@@ -1355,7 +1462,7 @@
       }
 
       // fator diversidade tabela (n, a, b)
-      const FATOR_DIV = [
+      const fator_diversidade = [
         [0, 0.0, 0.0],
         [1, 0.821, 0.85],
         [2, 0.72, 0.79],
@@ -1401,7 +1508,7 @@
       // mapping quick access
       const fatorA_by_n = {};
       const fatorB_by_n = {};
-      for (const [n, a, b] of FATOR_DIV) {
+      for (const [n, a, b] of fator_diversidade) {
         fatorA_by_n[n] = a;
         fatorB_by_n[n] = b;
       }
@@ -1525,6 +1632,7 @@
       function plotCurve(labels, dataArr, limite) {
         const ctx = document.getElementById("chart").getContext("2d");
         if (chart) chart.destroy();
+
         chart = new Chart(ctx, {
           type: "line",
           data: {
@@ -1533,26 +1641,60 @@
               {
                 label: "Curva simulada (kVA)",
                 data: dataArr,
-                fill: false,
-                tension: 0.2,
-                pointRadius: 3,
+                borderColor: "#008000", // verde institucional
+                backgroundColor: "rgba(0,128,0,0.1)", // preenchimento suave
+                fill: true, // área preenchida
+                tension: 0.3, // suaviza a curva
+                pointRadius: 4, // pontos mais visíveis
+                pointBackgroundColor: "#008000",
                 borderWidth: 2,
               },
               {
-                label: `Limite transformador`,
+                label: "Limite transformador",
                 data: Array(labels.length).fill(limite),
+                borderColor: "#ff5959", // vermelho para destaque
                 borderDash: [6, 4],
-                borderColor: "#ff5959",
                 pointRadius: 0,
+                borderWidth: 2,
               },
             ],
           },
           options: {
             responsive: true,
-            plugins: { legend: { position: "top" } },
+            plugins: {
+              legend: {
+                position: "bottom", // legenda mais discreta
+                labels: {
+                  font: { size: 12 },
+                },
+              },
+              tooltip: {
+                mode: "index",
+                intersect: false,
+                backgroundColor: "#333",
+                titleColor: "#fff",
+                bodyColor: "#fff",
+              },
+            },
             scales: {
-              x: { display: true },
-              y: { display: true, title: { display: true, text: "kVA" } },
+              x: {
+                display: true,
+                title: {
+                  display: true,
+                  text: "Horário",
+                  font: { size: 13, weight: "bold" },
+                },
+                grid: { color: "rgba(0,0,0,0.05)" },
+              },
+              y: {
+                display: true,
+                title: {
+                  display: true,
+                  text: "kVA",
+                  font: { size: 13, weight: "bold" },
+                },
+                grid: { color: "rgba(0,0,0,0.05)" },
+              },
             },
           },
         });
@@ -1574,7 +1716,7 @@
       document.getElementById("btnReset").addEventListener("click", () => {
         document
           .querySelectorAll('input[type="number"]')
-          .forEach((i) => (i.value = 0));
+          .forEach((i) => (i.value = ""));
         document
           .querySelectorAll('input[type="text"]')
           .forEach((i) => (i.value = ""));
@@ -1586,6 +1728,187 @@
           "Resultado aparecerá aqui.";
         if (chart) chart.destroy();
       });
+
+      // --- 1) Função para obter fator de diversidade (retorna [factor, key])
+      function get_fator_diversidade(idx, total_customers, consumer_class) {
+        // construir dicionários a partir de fator_diversidade (assumindo que existe array fator_diversidade)
+        const factorA_by_n = {};
+        const factorB_by_n = {};
+        for (const [n, a, b] of fator_diversidade) {
+          factorA_by_n[n] = a;
+          factorB_by_n[n] = b;
+        }
+
+        const klass = (consumer_class || "").toString().trim().toLowerCase();
+        let useA;
+        if (
+          klass === "residencial" ||
+          klass === "residential" ||
+          klass === "rural"
+        ) {
+          useA = idx >= 1 && idx <= 13;
+        } else {
+          useA = idx >= 1 && idx <= 9;
+        }
+
+        if (useA) {
+          const maxKey = Math.max(...Object.keys(factorA_by_n).map(Number));
+          const key = Math.min(
+            Math.max(1, parseInt(total_customers) || 1),
+            maxKey,
+          );
+          const factor =
+            factorA_by_n[key] !== undefined
+              ? factorA_by_n[key]
+              : factorA_by_n[maxKey];
+          return [parseFloat(factor), key];
+        } else {
+          const maxKey = Math.max(...Object.keys(factorB_by_n).map(Number));
+          const n = Math.max(1, parseInt(total_customers) || 1);
+          let key = n === 1 ? 1 : Math.max(1, Math.floor(n / 2));
+          key = Math.min(key, maxKey);
+          const factor =
+            factorB_by_n[key] !== undefined
+              ? factorB_by_n[key]
+              : factorB_by_n[maxKey];
+          return [parseFloat(factor), key];
+        }
+      }
+
+      // --- 2) Corrigir leitura do limite municipal manual (não atribuir addEventListener ao lim_manual)
+      document
+        .getElementById("municipio")
+        .addEventListener("change", function () {
+          // apenas atualiza UI/estado; não sobrescreve lim_manual global
+          // se quiser recalcular automaticamente, chame calcular() aqui
+          // calcular();
+        });
+
+      // obter valor manual (se existir) no momento do cálculo
+      const lim_manual_input = document.getElementById("lim_manual"); // supondo que exista um input com id lim_manual
+      const lim_manual_val = lim_manual_input
+        ? parseFloat(lim_manual_input.value)
+        : NaN;
+
+      const lookup = {};
+      DISJUNTORES.forEach((d) => {
+        lookup[d[0]] = { idx: d[1], kva: d[2] };
+      });
+      function getEntry(name) {
+        if (!name) return { idx: 0, kva: 0.0 };
+        return lookup[name] || { idx: 0, kva: 0.0 };
+      }
+
+      function computeItemDemand(
+        amount,
+        breakerName,
+        consumerClass,
+        total_customers,
+      ) {
+        const entry = getEntry(breakerName);
+        const idx = entry.idx || 0;
+        const base_kva = entry.kva || 0.0;
+        const amountInt = parseInt(amount) || 0;
+
+        // regra: se idx >= 12, kVA escala pela quantidade; senão, usa unitário
+        const kva_value = idx >= 12 ? base_kva * amountInt : base_kva;
+
+        // obter fator e chave
+        const [factor, div_key] = get_fator_diversidade(
+          idx,
+          total_customers,
+          consumerClass,
+        );
+
+        // multiplicador por classe (dummy_factor)
+        let dummy_factor = 0.9;
+        const klass = (consumerClass || "").toString().trim().toLowerCase();
+        if (
+          klass === "residencial" ||
+          klass === "residential" ||
+          klass === "rural"
+        ) {
+          dummy_factor = 0.6;
+        } else if (
+          klass === "comercial" ||
+          klass === "comercial".toLowerCase()
+        ) {
+          dummy_factor = 0.8;
+        } else {
+          dummy_factor = 0.9;
+        }
+
+        // nota: o Python faz factor * kva_value * dummy_factor * amount
+        const demand_kva = factor * kva_value * dummy_factor * amountInt;
+
+        return {
+          amount: amountInt,
+          idx,
+          base_kva,
+          kva_value,
+          factor,
+          div_key,
+          demand_kva,
+        };
+      }
+
+      // --- 4) Usar computeItemDemand para todos os pares e somar corretamente
+      const quantidadeDisjuntores =
+        res1 +
+        res2 +
+        res3 +
+        uc_residencial +
+        uc_rural +
+        com1 +
+        com2 +
+        com3 +
+        uc_comercial +
+        ind1 +
+        ind2 +
+        ind3 +
+        uc_industrial +
+        uc_outros;
+      const total_customers = quantidadeDisjuntores; // ou ajuste conforme sua definição de existing_amount
+      let dem_simulada_residencial_sum = 0;
+      let dem_simulada_comercial_sum = 0;
+      let dem_simulada_industrial_sum = 0;
+
+      // exemplo para residenciais
+      const r1 = computeItemDemand(res1, dres1, "residencial", total_customers);
+      const r2 = computeItemDemand(res2, dres2, "residencial", total_customers);
+      const r3 = computeItemDemand(res3, dres3, "residencial", total_customers);
+      dem_simulada_residencial_sum =
+        r1.demand_kva +
+        r2.demand_kva +
+        r3.demand_kva +
+        (demanda_residencial || 0);
+
+      // comerciais
+      const c1 = computeItemDemand(com1, dcom1, "comercial", total_customers);
+      const c2 = computeItemDemand(com2, dcom2, "comercial", total_customers);
+      const c3 = computeItemDemand(com3, dcom3, "comercial", total_customers);
+      dem_simulada_comercial_sum =
+        c1.demand_kva +
+        c2.demand_kva +
+        c3.demand_kva +
+        (demanda_comercial || 0);
+
+      // industriais
+      const i1 = computeItemDemand(ind1, dind1, "industrial", total_customers);
+      const i2 = computeItemDemand(ind2, dind2, "industrial", total_customers);
+      const i3 = computeItemDemand(ind3, dind3, "industrial", total_customers);
+      dem_simulada_industrial_sum =
+        i1.demand_kva +
+        i2.demand_kva +
+        i3.demand_kva +
+        (demanda_industrial || 0);
+
+      // demTOT conforme Python (soma das categorias + iluminação)
+      const demTOT_fixed =
+        dem_simulada_residencial_sum +
+        dem_simulada_comercial_sum +
+        dem_simulada_industrial_sum +
+        (demanda_iluminação || 0);
 
       function calcular() {
         // ler inputs (seguindo nomes do Python)
@@ -1648,149 +1971,119 @@
           parseInt(document.getElementById("qtd_geral").value) || 0;
         const disj_geral = document.getElementById("disj_geral").value || "";
 
-        const quantiResTot =
-          parseInt(document.getElementById("quantiResTot").value) || 0;
-        const quantComTot =
-          parseInt(document.getElementById("quantComTot").value) || 0;
-        const numcsi = parseInt(document.getElementById("numcsi").value) || 0;
+        const uc_residencial =
+          parseInt(document.getElementById("uc_residencial").value) || 0;
+        const uc_comercial =
+          parseInt(document.getElementById("uc_comercial").value) || 0;
+        const uc_industrial =
+          parseInt(document.getElementById("uc_industrial").value) || 0;
+        const uc_outros =
+          parseInt(document.getElementById("uc_outros").value) || 0;
+        const uc_rural =
+          parseInt(document.getElementById("uc_rural").value) || 0;
 
-        let demResTot =
-          parseFloat(document.getElementById("demResTot").value) || 0;
-        let demComTot =
-          parseFloat(document.getElementById("demComTot").value) || 0;
-        let demi = parseFloat(document.getElementById("demi").value) || 0;
+        let demanda_residencial =
+          parseFloat(document.getElementById("demanda_residencial").value) || 0;
+        let demanda_comercial =
+          parseFloat(document.getElementById("demanda_comercial").value) || 0;
+        let demanda_industrial =
+          parseFloat(document.getElementById("demanda_industrial").value) || 0;
+        let demanda_rural =
+          parseFloat(document.getElementById("demanda_rural").value) || 0;
+        let demanda_outros =
+          parseFloat(document.getElementById("demanda_outros").value) || 0;
+        let demanda_iluminação =
+          parseFloat(document.getElementById("demanda_iluminação").value) || 0;
 
-        const ip_val = parseFloat(document.getElementById("ip_val").value) || 0;
-
-        // quantidade total de disjuntores (igual ao Python)
         const quantidadeDisjuntores =
           res1 +
           res2 +
           res3 +
+          uc_residencial +
+          uc_rural +
           com1 +
           com2 +
           com3 +
+          uc_comercial +
           ind1 +
           ind2 +
           ind3 +
-          quantiResTot +
-          numcsi +
-          quantComTot;
+          uc_industrial +
+          uc_outros;
 
-        // lookup por nome -> (idx, kva)
-        const lookup = {};
-        DISJUNTORES.forEach((d) => {
-          lookup[d[0]] = { idx: d[1], kva: d[2] };
-        });
-
-        // auxiliar para obter idx/kva seguros
-        function getEntry(name) {
-          if (!name) return { idx: 0, kva: 0.0 };
-          return lookup[name] || { idx: 0, kva: 0.0 };
-        }
-
-        // fatores por disjuntor (res/com/ind)
-        const ires1 = getEntry(dres1).idx;
-        const ires2 = getEntry(dres2).idx;
-        const ires3 = getEntry(dres3).idx;
-        const icom1 = getEntry(dcom1).idx;
-        const icom2 = getEntry(dcom2).idx;
-        const icom3 = getEntry(dcom3).idx;
-        const iind1 = getEntry(dind1).idx;
-        const iind2 = getEntry(dind2).idx;
-        const iind3 = getEntry(dind3).idx;
-
-        const fator_res1 = get_fator_diversidadeR(ires1, quantidadeDisjuntores);
-        const fator_res2 = get_fator_diversidadeR(ires2, quantidadeDisjuntores);
-        const fator_res3 = get_fator_diversidadeR(ires3, quantidadeDisjuntores);
-        const fator_com1 = get_fator_diversidade(icom1, quantidadeDisjuntores);
-        const fator_com2 = get_fator_diversidade(icom2, quantidadeDisjuntores);
-        const fator_com3 = get_fator_diversidade(icom3, quantidadeDisjuntores);
-        const fator_ind1 = get_fator_diversidade(iind1, quantidadeDisjuntores);
-        const fator_ind2 = get_fator_diversidade(iind2, quantidadeDisjuntores);
-        const fator_ind3 = get_fator_diversidade(iind3, quantidadeDisjuntores);
-
-        // kva por disjuntor e regra idx>=12 multiplicativa (mesma que você pediu)
-        const e_res1 = getEntry(dres1);
-        const e_res2 = getEntry(dres2);
-        const e_res3 = getEntry(dres3);
-        const e_com1 = getEntry(dcom1);
-        const e_com2 = getEntry(dcom2);
-        const e_com3 = getEntry(dcom3);
-        const e_ind1 = getEntry(dind1);
-        const e_ind2 = getEntry(dind2);
-        const e_ind3 = getEntry(dind3);
-
-        const kva_res1 = e_res1.idx >= 12 ? e_res1.kva * res1 : e_res1.kva;
-        const kva_res2 = e_res2.idx >= 12 ? e_res2.kva * res2 : e_res2.kva;
-        const kva_res3 = e_res3.idx >= 12 ? e_res3.kva * res3 : e_res3.kva;
-
-        const kva_com1 = e_com1.idx >= 12 ? e_com1.kva * com1 : e_com1.kva;
-        const kva_com2 = e_com2.idx >= 12 ? e_com2.kva * com2 : e_com2.kva;
-        const kva_com3 = e_com3.idx >= 12 ? e_com3.kva * com3 : e_com3.kva;
-
-        const kva_ind1 = e_ind1.idx >= 12 ? e_ind1.kva * ind1 : e_ind1.kva;
-        const kva_ind2 = e_ind2.idx >= 12 ? e_ind2.kva * ind2 : e_ind2.kva;
-        const kva_ind3 = e_ind3.idx >= 12 ? e_ind3.kva * ind3 : e_ind3.kva;
-
-        // demanda simulada por tipo (usa fatores)
-        const dem_simulada_res1 = fator_res1 * kva_res1 * 1; // a multiplicação por qtd já aplicada em kva_res1 conforme regra
-        const dem_simulada_res2 = fator_res2 * kva_res2 * 1;
-        const dem_simulada_res3 = fator_res3 * kva_res3 * 1;
-
-        const dem_simulada_com1 = fator_com1 * kva_com1 * 1;
-        const dem_simulada_com2 = fator_com2 * kva_com2 * 1;
-        const dem_simulada_com3 = fator_com3 * kva_com3 * 1;
-
-        const dem_simulada_ind1 = fator_ind1 * kva_ind1 * 1;
-        const dem_simulada_ind2 = fator_ind2 * kva_ind2 * 1;
-        const dem_simulada_ind3 = fator_ind3 * kva_ind3 * 1;
-
-        // ajusta agregados (igual ao seu Python)
-        demComTot = demComTot / 0.82;
-        demi = demi / 0.55;
-
-        // somas finais com multiplicadores 0.6/0.8/0.9 (idem Python)
+        // total_customers segue a mesma lógica do Python
+        const total_customers = quantidadeDisjuntores;
+        const r1 = computeItemDemand(
+          res1,
+          dres1,
+          "residencial",
+          total_customers,
+        );
+        const r2 = computeItemDemand(
+          res2,
+          dres2,
+          "residencial",
+          total_customers,
+        );
+        const r3 = computeItemDemand(
+          res3,
+          dres3,
+          "residencial",
+          total_customers,
+        );
+        const c1 = computeItemDemand(com1, dcom1, "comercial", total_customers);
+        const c2 = computeItemDemand(com2, dcom2, "comercial", total_customers);
+        const c3 = computeItemDemand(com3, dcom3, "comercial", total_customers);
+        const i1 = computeItemDemand(
+          ind1,
+          dind1,
+          "industrial",
+          total_customers,
+        );
+        const i2 = computeItemDemand(
+          ind2,
+          dind2,
+          "industrial",
+          total_customers,
+        );
+        const i3 = computeItemDemand(
+          ind3,
+          dind3,
+          "industrial",
+          total_customers,
+        );
         const dem_simulada_residencial =
-          (dem_simulada_res1 + dem_simulada_res2 + dem_simulada_res3) * 0.6 +
-          (demResTot || 0);
+          r1.demand_kva +
+          r2.demand_kva +
+          r3.demand_kva +
+          (demanda_residencial || 0);
         const dem_simulada_comercial =
-          (dem_simulada_com1 + dem_simulada_com2 + dem_simulada_com3) * 0.8 +
-          (demComTot || 0);
+          c1.demand_kva +
+          c2.demand_kva +
+          c3.demand_kva +
+          (demanda_comercial || 0);
         const dem_simulada_industrial =
-          (dem_simulada_ind1 + dem_simulada_ind2 + dem_simulada_ind3) * 0.9 +
-          (demi || 0);
-
+          i1.demand_kva +
+          i2.demand_kva +
+          i3.demand_kva +
+          (demanda_industrial || 0);
         const demTOT =
           dem_simulada_residencial +
           dem_simulada_comercial +
           dem_simulada_industrial +
-          (ip_val || 0);
+          (demanda_iluminação || 0);
 
-        // curva horária (mesma multiplicação que Python - aplica perfis)
-        const curvares =
-          (dem_simulada_res1 +
-            dem_simulada_res2 +
-            dem_simulada_res3 +
-            (demResTot || 0)) *
-          consumidorRes;
-        const curvaCom =
-          (dem_simulada_com1 +
-            dem_simulada_com2 +
-            dem_simulada_com3 +
-            (demComTot || 0)) *
-          consumidorComerc;
-        const curvaInd =
-          (dem_simulada_ind1 +
-            dem_simulada_ind2 +
-            dem_simulada_ind3 +
-            (demi || 0)) *
-          consumidorIndustrial;
+        const curvares = consumidorRes.map((v) => v * dem_simulada_residencial);
+        const curvaCom = consumidorComerc.map(
+          (v) => v * dem_simulada_comercial,
+        );
+        const curvaInd = consumidorIndustrial.map(
+          (v) => v * dem_simulada_industrial,
+        );
 
         const curva_simulada = [];
         for (let i = 0; i < Hora.length; i++) {
-          const v =
-            (curvares[i] || 0) + (curvaCom[i] || 0) + (curvaInd[i] || 0);
+          const v = curvares[i] + curvaCom[i] + curvaInd[i];
           curva_simulada.push(v);
         }
 
@@ -1855,7 +2148,7 @@
           criarMedidas.planejamento = true;
         } else {
           textoCab =
-            "Rede liberada para conexão.\nNão será necessário obra de reforço na rede.\n**********************************************";
+            "Rede liberada para conexão.\n**********************************************";
           criarMedidas.liberacao = true;
         }
 
@@ -1864,11 +2157,10 @@
 
         // texto resultado (parecido com sua versão)
         const texto_resultado = `${textoCab}
-Pico de demanda: ${pico_total.toFixed(2)} kVA às ${hora_pico}
-Demanda simulada: ${demTOT.toFixed(2)} kVA
-Transformador: ${trafo || "(não informado)"} (${tipo_TRF === 0 ? "CONVENCIONAL" : "AUTOPROTEGIDO"}) [Limite ${label_pct} = ${limite.toFixed(1)} kVA]
-${texto_disjuntores}
-Coordenada: `;
+        Pico de demanda: ${pico_total.toFixed(2)} kVA às ${hora_pico}
+        Demanda simulada: ${demTOT.toFixed(2)} kVA
+        Transformador: ${trafo || "(não informado)"} (${tipo_TRF === 0 ? "Convencional" : "Autoprotegido"})
+        ${texto_disjuntores}`
 
         // atualizar UI
         document.getElementById("msg").innerText = texto_resultado;
