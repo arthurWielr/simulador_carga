@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Simulador de Carga - Base Técnica (CEMIG)</title>
+
+    <!-- Chart.js para plot da curva -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      :root {
+        --cemig-blue: #008000;
+        --cemig-accent: #0060d6;
+        --muted: #6b7b94;
+        --bg: #f4f7fb;
+        --card: #ffffff;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        background: var(--bg);
+        color: #122028;
+      }
+      .header {
+        background: linear-gradient(
+          90deg,
+          var(--cemig-blue),
+          var(--cemig-accent)
+        );
+        color: #fff;
+        padding: 16px 22px;
+        font-weight: 700;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 18px;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 18px;
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+      }
+      h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        color: var(--cemig-blue);
+      }
+      p.lead {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        align-items: start;
+      }
+
+      /* Linha Qtd | Disjuntor (aparece como um row) */
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .row .qtd {
+        width: 100px;
+      }
+      .row .dq {
+        flex: 1;
+      }
+
+      label {
+        font-size: 13px;
+        color: #324155;
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      input[type="number"],
+      input[type="text"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #dbe7ff;
+        background: #fbfdff;
+        font-size: 14px;
+        color: #122028;
+        box-sizing: border-box;
+      }
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      button {
+        background: var(--cemig-blue);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 700;
+        box-shadow: 0 6px 18px rgba(0, 74, 173, 0.12);
+      }
+      button.secondary {
+        background: #eef5ff;
+        color: var(--cemig-blue);
+        box-shadow: none;
+        border: 1px solid #d6e6ff;
+      }
+      .result {
+        white-space: pre-line;
+        background: linear-gradient(180deg, #fbfdff, #f6fbff);
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #e6f0ff;
+        margin-top: 12px;
+        color: #122028;
+      }
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 18px;
+      }
+      canvas {
+        background: #fff;
+        border-radius: 8px;
+        padding: 8px;
+      }
+      .muted-note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+      footer {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        padding: 12px 0;
+      }
+      @media (max-width: 900px) {
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .row .qtd {
+          width: 86px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">Simulador de Carga — Base Técnica (CEMIG)</div>
+
+    <div class="wrap">
+      <!-- Top - Transformador / Meta -->
+      <div class="card">
+        <h2>Transformador & Meta</h2>
+        <p class="lead">
+          Informe dados do transformador e comportamento desejado.
+        </p>
+
+        <div class="grid" style="margin-top: 12px">
+          <div>
+            <label>Nome do Transformador</label>
+            <input id="trafo" type="text"/>
+
+            <label style="margin-top: 10px"
+              >Potência do transformador (kVA)</label
+            >
+            <input id="pottr" type="number" value="" step="1" />
+
+            <label style="margin-top: 10px">Tipo de Transformador</label>
+            <select id="tipo_TRF">
+              <option value="0">Convencional</option>
+              <option value="1">Autoprotegido</option>
+            </select>
+
+            <label style="margin-top: 10px"
+              >Zona (apenas para default lim. municipal)</label
+            >
+            <select id="zona">
+              <option value="urbana">Área Urbana</option>
+              <option value="rural">Área Rural</option>
+            </select>
+          </div>
+
+          <div>
+            <div style="margin-top: 12px">
+              <label
+                >Quantidade residencial agregada existente</label
+              >
+              <input id="quantiResTot" type="number" value="" />
+            </div>
+
+            <div style="margin-top: 8px">
+              <label>Demanda residencial existente</label>
+              <input id="demResTot" type="number" value="" step="0.01" />
+            </div>
+            <div style="margin-top: 12px">
+              <label
+                >Quantidade comercial agregada existente</label
+              >
+              <input id="quantComTot" type="number" value="" />
+            </div>
+
+            <div style="margin-top: 8px">
+              <label>Demanda comercial existente</label>
+              <input id="demComTot" type="number" value="" step="0.01" />
+            </div>
+
+            <div style="margin-top: 12px">
+              <label>Demanda industrial existente</label>
+              <input id="demi" type="number" value="" step="0.01" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consumidores: Residencial / Comercial / Industrial -->
+      <div class="card">
+        <h2>Novos Consumidores</h2>
+        <p class="lead">
+        </p>
+
+        <div class="two-col">
+          <div>
+            <h3 style="color: var(--cemig-blue); margin: 0 0 8px">
+              Residencial
+            </h3>
+            <div class="muted-note">
+            </div>
+
+            <!-- 3 linhas residenciais -->
+            <div style="margin-top: 10px">
+              <div class="row">
+                <div>
+                  <label>Qtd (res1)</label>
+                  <input
+                    class="qtd"
+                    id="res1"
+                    type="number"
+                    value=""
+                    min="0"
+                  />
+                </div>
+                <div class="dq">
+                  <label>Disjuntor (res1)</label>
+                  <select id="dres1"></select>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top: 8px">
+                <div>
+                  <label>Qtd (res2)</label>
+                  <input
+                    class="qtd"
+                    id="res2"
+                    type="number"
+                    value=""
+                    min="0"
+                  />
+                </div>
+                <div class="dq">
+                  <label>Disjuntor (res2)</label>
+                  <select id="dres2"></select>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top: 8px">
+                <div>
+                  <label>Qtd (res3)</label>
+                  <input
+                    class="qtd"
+                    id="res3"
+                    type="number"
+                    value=""
+                    min="0"
+                  />
+                </div>
+                <div class="dq">
+                  <label>Disjuntor (res3)</label>
+                  <select id="dres3"></select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="color: var(--cemig-blue); margin: 0 0 8px">Comercial</h3>
+            <div class="muted-note">
+            </div>
+
+            <!-- 3 linhas comerciais -->
+            <div style="margin-top: 10px">
+              <div class="row">
+                <div>
+                  <label>Qtd (com1)</label>
+                  <input
+                    class="qtd"
+                    id="com1"
+                    type="number"
+                    value=""
+                    min="0"
+                  />
+                </div>
+                <div class="dq">
+                  <label>Disjuntor (com1)</label>
+                  <select id="dcom1"></select>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top: 8px">
+                <div>
+                  <label>Qtd (com2)</label>
+                  <input
+                    class="qtd"
+                    id="com2"
+                    type="number"
+                    value=""
+                    min="0"
+                  />
+                </div>
+                <div class="dq">
+                  <label>Disjuntor (com2)</label>
+                  <select id="dcom2"></select>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top: 8px">
+                <div>
+                  <label>Qtd (com3)</label>
+                  <input
+                    class="qtd"
+                    id="com3"
+                    type="number"
+                    value=""
+                    min="0"
+                  />
+                </div>
+                <div class="dq">
+                  <label>Disjuntor (com3)</label>
+                  <select id="dcom3"></select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Industrial block -->
+        <div style="margin-top: 14px">
+          <h3 style="color: var(--cemig-blue); margin-bottom: 8px">
+            Industrial
+          </h3>
+
+          <div class="row">
+            <div>
+              <label>Qtd (ind1)</label>
+              <input class="qtd" id="ind1" type="number" value="" min="0" />
+            </div>
+            <div class="dq">
+              <label>Disjuntor (ind1)</label>
+              <select id="dind1"></select>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 8px">
+            <div>
+              <label>Qtd (ind2)</label>
+              <input class="qtd" id="ind2" type="number" value="" min="0" />
+            </div>
+            <div class="dq">
+              <label>Disjuntor (ind2)</label>
+              <select id="dind2"></select>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 8px">
+            <div>
+              <label>Qtd (ind3)</label>
+              <input class="qtd" id="ind3" type="number" value="" min="0" />
+            </div>
+            <div class="dq">
+              <label>Disjuntor (ind3)</label>
+              <select id="dind3"></select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disjuntor Geral e IP -->
+      <div class="card">
+        <h2>Disjuntor Geral / Outros</h2>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap">
+          <div style="flex: 1; min-width: 220px">
+            <label>Qtd Disjuntor Geral (qtd_geral)</label>
+            <input id="qtd_geral" type="number" value="" min="0" />
+          </div>
+          <div style="flex: 2; min-width: 260px">
+            <label>Disjuntor Geral (disj_geral)</label>
+            <select id="disj_geral"></select>
+          </div>
+        </div>
+
+        <div
+          style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap"
+        >
+          <div style="flex: 1; min-width: 220px">
+            <label>IP — Iluminação Pública (kVA) — manual</label>
+            <input id="ip_val" type="number" value="" step="0.01" />
+          </div>
+          <div style="flex: 1; min-width: 220px">
+            <label>Nº CSI / numcsi (opcional)</label>
+            <input id="numcsi" type="number" value="" min="0" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico e resumo -->
+      <div class="card">
+        <h2>Curva Horária & Resultado</h2>
+        <div class="grid">
+          <div>
+            <canvas id="chart" height="200"></canvas>
+          </div>
+          <div>
+            <div class="result" id="resumo_texto">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        Arquivo único HTML — pronto para GitHub Pages • Mantém lógica Python
+      </footer>
+    </div>
+
+    <script>
+      /* ======================= Dados (31 disjuntores, fatores, perfis) ======================= */
+      const DISJUNTORES = [
+        ["", 0, 0.0],
+        ["A1/G1-MONO 40 A", 1, 5.0],
+        ["A2/G2- MONO 50 A", 2, 6.5],
+        ["A3/G3- MONO 63/70 A", 3, 10.0],
+        ["B1/H1- BI 40 A", 4, 10.0],
+        ["B2/H2-BI 60/63 A", 5, 15.0],
+        ["H3- BI 100 A", 6, 20.0],
+        ["H4-BI 125 A", 7, 30.0],
+        ["H5-BI 150 A", 8, 36.0],
+        ["H6- BI 200 A", 9, 50.0],
+        ["C1- TRI 40", 10, 15.0],
+        ["C2- TRI 60/63 A", 11, 23.0],
+        ["C3- TRI 70/80 A", 12, 27.0],
+        ["C4- TRI 100 A", 13, 38.0],
+        ["C5- TRI 120/125 A", 14, 47.0],
+        ["C6- TRI 150 A", 15, 57.0],
+        ["C7- TRI 175 A", 16, 66.0],
+        ["C8- TRI 200 A", 17, 75.0],
+        ["F1- TRI 225 A", 18, 86.0],
+        ["F2- TRI 250", 19, 95.0],
+        ["F3- TRI 300/315/320 A", 20, 114.0],
+        ["F4- TRI 400 A", 21, 152.0],
+        ["F5- TRI 450 A", 22, 171.0],
+        ["F6- TRI 500 A", 23, 188.0],
+        ["F7- TRI 600/630 A", 24, 228.0],
+        ["F8- TRI 700 A", 25, 266.0],
+        ["F9- TRI 800 A", 26, 304.0],
+        ["TRI 1000 A", 27, 342.0],
+        ["TRI 1200 A", 28, 456.0],
+        ["TRI 1500 A", 29, 570.0],
+        ["TRI 1800 A", 30, 685.0],
+        ["TRI 2100 A", 31, 800.0],
+      ];
+
+      // popular selects (res, com, ind, geral)
+      const selects = [
+        "dres1",
+        "dres2",
+        "dres3",
+        "dcom1",
+        "dcom2",
+        "dcom3",
+        "dind1",
+        "dind2",
+        "dind3",
+        "disj_geral",
+      ];
+      for (const id of selects) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        // empty option
+        el.innerHTML = '<option value=""></option>';
+        DISJUNTORES.slice(1).forEach((d) => {
+          const opt = document.createElement("option");
+          opt.value = d[0];
+          opt.text = d[0];
+          el.appendChild(opt);
+        });
+      }
+
+      // fator diversidade tabela (n, a, b)
+      const FATOR_DIV = [
+        [0, 0.0, 0.0],
+        [1, 0.821, 0.85],
+        [2, 0.72, 0.79],
+        [3, 0.615, 0.72],
+        [4, 0.505, 0.67],
+        [5, 0.4, 0.62],
+        [6, 0.335, 0.57],
+        [7, 0.285, 0.53],
+        [8, 0.25, 0.5],
+        [9, 0.22, 0.48],
+        [10, 0.19, 0.46],
+        [11, 0.16, 0.44],
+        [12, 0.141, 0.42],
+        [13, 0.125, 0.4],
+        [14, 0.11, 0.385],
+        [15, 0.1, 0.37],
+        [16, 0.0977, 0.365],
+        [17, 0.0955, 0.36],
+        [18, 0.0948, 0.355],
+        [19, 0.093, 0.35],
+        [20, 0.0915, 0.348],
+        [21, 0.09, 0.346],
+        [22, 0.089, 0.344],
+        [23, 0.088, 0.342],
+        [24, 0.087, 0.34],
+        [25, 0.0865, 0.338],
+        [26, 0.086, 0.336],
+        [27, 0.0855, 0.334],
+        [28, 0.085, 0.332],
+        [29, 0.084, 0.33],
+        [30, 0.083, 0.328],
+        [31, 0.0825, 0.326],
+        [32, 0.082, 0.324],
+        [33, 0.0815, 0.322],
+        [34, 0.081, 0.32],
+        [35, 0.0805, 0.318],
+        [36, 0.08, 0.316],
+        [37, 0.0795, 0.314],
+        [38, 0.079, 0.312],
+        [39, 0.078, 0.31],
+        [40, 0.078, 0.308],
+      ];
+      // mapping quick access
+      const fatorA_by_n = {};
+      const fatorB_by_n = {};
+      for (const [n, a, b] of FATOR_DIV) {
+        fatorA_by_n[n] = a;
+        fatorB_by_n[n] = b;
+      }
+
+      // perfis horários (mesma ordem do Python)
+      const Hora = [
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00",
+      ];
+      const consumidorRes = [
+        0.39, 0.362, 0.363, 0.346, 0.351, 0.406, 0.469, 0.497, 0.553, 0.573,
+        0.566, 0.631, 0.589, 0.604, 0.617, 0.611, 0.661, 0.717, 1.0, 0.902,
+        0.862, 0.791, 0.703, 0.48,
+      ];
+      const consumidorComerc = [
+        0.35, 0.26, 0.28, 0.24, 0.25, 0.25, 0.33, 0.49, 0.71, 0.81, 0.8, 0.77,
+        0.73, 0.85, 0.96, 1.0, 0.95, 0.87, 0.82, 0.66, 0.64, 0.53, 0.45, 0.38,
+      ];
+      const consumidorIndustrial = [
+        0.24, 0.24, 0.24, 0.28, 0.32, 0.39, 0.42, 0.79, 0.93, 0.95, 0.96, 0.74,
+        0.73, 0.95, 1.0, 0.96, 0.9, 0.71, 0.55, 0.47, 0.38, 0.36, 0.29, 0.28,
+      ];
+
+      // util
+      function norm(s) {
+        return (s || "").toString().trim().toLowerCase();
+      }
+      function findDisjByName(name) {
+        if (!name) return null;
+        const n = DISJUNTORES.find((d) => d[0] === name);
+        return n || null;
+      }
+
+      /* get_fator_diversidadeR (residencial) */
+      function get_fator_diversidadeR(indice_disjuntor, quantidade) {
+        let idx = Math.max(1, Math.min(parseInt(indice_disjuntor) || 0, 40));
+        if (1 <= idx && idx <= 13) {
+          const max_chave = Math.max(
+            ...Object.keys(fatorA_by_n).map((x) => +x),
+          );
+          const chave = Math.min(quantidade, max_chave);
+          return parseFloat(fatorA_by_n[chave] ?? fatorA_by_n[max_chave]);
+        } else {
+          const max_chave = Math.max(
+            ...Object.keys(fatorB_by_n).map((x) => +x),
+          );
+          let chave =
+            quantidade === 1
+              ? quantidade
+              : Math.max(1, Math.floor(quantidade / 2));
+          chave = Math.min(chave, max_chave);
+          return parseFloat(fatorB_by_n[chave] ?? fatorB_by_n[max_chave]);
+        }
+      }
+
+      /* get_fator_diversidade (com/ind) */
+      function get_fator_diversidade(indice_disjuntor, quantidade) {
+        let idx = Math.max(1, Math.min(parseInt(indice_disjuntor) || 0, 40));
+        if (1 <= idx && idx <= 9) {
+          const max_chave = Math.max(
+            ...Object.keys(fatorA_by_n).map((x) => +x),
+          );
+          const chave = Math.min(quantidade, max_chave);
+          return parseFloat(fatorA_by_n[chave] ?? fatorA_by_n[max_chave]);
+        } else {
+          const max_chave = Math.max(
+            ...Object.keys(fatorB_by_n).map((x) => +x),
+          );
+          let chave =
+            quantidade === 1
+              ? quantidade
+              : Math.max(1, Math.floor(quantidade / 2));
+          chave = Math.min(chave, max_chave);
+          return parseFloat(fatorB_by_n[chave] ?? fatorB_by_n[max_chave]);
+        }
+      }
+
+      /* monta seleção rápida para texto_disjuntores */
+      function formatTextoDisjuntores(pares) {
+        let texto = "";
+        const tipos = [
+          "Disjuntor Residencial",
+          "Disjuntor Comercial",
+          "Disjuntor Industrial",
+        ];
+        for (let i = 0; i < 9; i++) {
+          const [qtd, disj] = pares[i] || [0, ""];
+          if (!qtd || !disj) continue;
+          let tipo = i < 3 ? tipos[0] : i < 6 ? tipos[1] : tipos[2];
+          texto += `${tipo}: ${qtd} x ${disj}\n`;
+        }
+        const [qtdg, disjg] = pares[9] || [0, ""];
+        if (qtdg && disjg) texto += `\nDisjuntor Geral: ${qtdg} x ${disjg}\n`;
+        return texto;
+      }
+
+      /* ========= Chart.js inicialização ========== */
+      let chart = null;
+      function plotCurve(labels, dataArr, limite) {
+        const ctx = document.getElementById("chart").getContext("2d");
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Curva simulada (kVA)",
+                data: dataArr,
+                fill: false,
+                tension: 0.2,
+                pointRadius: 3,
+                borderWidth: 2,
+              },
+              {
+                label: `Limite transformador`,
+                data: Array(labels.length).fill(limite),
+                borderDash: [6, 4],
+                borderColor: "#ff5959",
+                pointRadius: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: "top" } },
+            scales: {
+              x: { display: true },
+              y: { display: true, title: { display: true, text: "kVA" } },
+            },
+          },
+        });
+      }
+
+      /* ======================= Main calcular ======================= */
+      document.getElementById("btnCalc").addEventListener("click", calcular);
+      document.getElementById("btnReset").addEventListener("click", () => {
+        document
+          .querySelectorAll('input[type="number"]')
+          .forEach((i) => (i.value = 0));
+        document
+          .querySelectorAll('input[type="text"]')
+          .forEach((i) => (i.value = ""));
+        document
+          .querySelectorAll("select")
+          .forEach((s) => (s.selectedIndex = 0));
+        document.getElementById("msg").innerText = "";
+        document.getElementById("resumo_texto").innerText =
+          "Resultado aparecerá aqui.";
+        if (chart) chart.destroy();
+      });
+
+      document
+        .getElementById("btnParecer")
+        .addEventListener("click", gerarParecer);
+
+      function calcular() {
+        // ler inputs (seguindo nomes do Python)
+        const pottr = parseFloat(document.getElementById("pottr").value) || 0;
+        const tipo_TRF =
+          parseInt(document.getElementById("tipo_TRF").value) || 0;
+        const trafo = (document.getElementById("trafo").value || "").trim();
+        const zona = document.getElementById("zona").value;
+        const lim_manual = parseFloat(
+          document.getElementById("lim_municipal").value,
+        );
+
+        // quantidades e nomes
+        const res1 = parseInt(document.getElementById("res1").value) || 0;
+        const res2 = parseInt(document.getElementById("res2").value) || 0;
+        const res3 = parseInt(document.getElementById("res3").value) || 0;
+
+        const com1 = parseInt(document.getElementById("com1").value) || 0;
+        const com2 = parseInt(document.getElementById("com2").value) || 0;
+        const com3 = parseInt(document.getElementById("com3").value) || 0;
+
+        const ind1 = parseInt(document.getElementById("ind1").value) || 0;
+        const ind2 = parseInt(document.getElementById("ind2").value) || 0;
+        const ind3 = parseInt(document.getElementById("ind3").value) || 0;
+
+        const dres1 = document.getElementById("dres1").value || "";
+        const dres2 = document.getElementById("dres2").value || "";
+        const dres3 = document.getElementById("dres3").value || "";
+
+        const dcom1 = document.getElementById("dcom1").value || "";
+        const dcom2 = document.getElementById("dcom2").value || "";
+        const dcom3 = document.getElementById("dcom3").value || "";
+
+        const dind1 = document.getElementById("dind1").value || "";
+        const dind2 = document.getElementById("dind2").value || "";
+        const dind3 = document.getElementById("dind3").value || "";
+
+        const qtd_geral =
+          parseInt(document.getElementById("qtd_geral").value) || 0;
+        const disj_geral = document.getElementById("disj_geral").value || "";
+
+        const quantiResTot =
+          parseInt(document.getElementById("quantiResTot").value) || 0;
+        const quantComTot =
+          parseInt(document.getElementById("quantComTot").value) || 0;
+        const numcsi = parseInt(document.getElementById("numcsi").value) || 0;
+
+        let demResTot =
+          parseFloat(document.getElementById("demResTot").value) || 0;
+        let demComTot =
+          parseFloat(document.getElementById("demComTot").value) || 0;
+        let demi = parseFloat(document.getElementById("demi").value) || 0;
+
+        const ip_val = parseFloat(document.getElementById("ip_val").value) || 0;
+
+        // quantidade total de disjuntores (igual ao Python)
+        const quantidadeDisjuntores =
+          res1 +
+          res2 +
+          res3 +
+          com1 +
+          com2 +
+          com3 +
+          ind1 +
+          ind2 +
+          ind3 +
+          quantiResTot +
+          numcsi +
+          quantComTot;
+
+        // lookup por nome -> (idx, kva)
+        const lookup = {};
+        DISJUNTORES.forEach((d) => {
+          lookup[d[0]] = { idx: d[1], kva: d[2] };
+        });
+
+        // auxiliar para obter idx/kva seguros
+        function getEntry(name) {
+          if (!name) return { idx: 0, kva: 0.0 };
+          return lookup[name] || { idx: 0, kva: 0.0 };
+        }
+
+        // fatores por disjuntor (res/com/ind)
+        const ires1 = getEntry(dres1).idx;
+        const ires2 = getEntry(dres2).idx;
+        const ires3 = getEntry(dres3).idx;
+        const icom1 = getEntry(dcom1).idx;
+        const icom2 = getEntry(dcom2).idx;
+        const icom3 = getEntry(dcom3).idx;
+        const iind1 = getEntry(dind1).idx;
+        const iind2 = getEntry(dind2).idx;
+        const iind3 = getEntry(dind3).idx;
+
+        const fator_res1 = get_fator_diversidadeR(ires1, quantidadeDisjuntores);
+        const fator_res2 = get_fator_diversidadeR(ires2, quantidadeDisjuntores);
+        const fator_res3 = get_fator_diversidadeR(ires3, quantidadeDisjuntores);
+        const fator_com1 = get_fator_diversidade(icom1, quantidadeDisjuntores);
+        const fator_com2 = get_fator_diversidade(icom2, quantidadeDisjuntores);
+        const fator_com3 = get_fator_diversidade(icom3, quantidadeDisjuntores);
+        const fator_ind1 = get_fator_diversidade(iind1, quantidadeDisjuntores);
+        const fator_ind2 = get_fator_diversidade(iind2, quantidadeDisjuntores);
+        const fator_ind3 = get_fator_diversidade(iind3, quantidadeDisjuntores);
+
+        // kva por disjuntor e regra idx>=12 multiplicativa (mesma que você pediu)
+        const e_res1 = getEntry(dres1);
+        const e_res2 = getEntry(dres2);
+        const e_res3 = getEntry(dres3);
+        const e_com1 = getEntry(dcom1);
+        const e_com2 = getEntry(dcom2);
+        const e_com3 = getEntry(dcom3);
+        const e_ind1 = getEntry(dind1);
+        const e_ind2 = getEntry(dind2);
+        const e_ind3 = getEntry(dind3);
+
+        const kva_res1 = e_res1.idx >= 12 ? e_res1.kva * res1 : e_res1.kva;
+        const kva_res2 = e_res2.idx >= 12 ? e_res2.kva * res2 : e_res2.kva;
+        const kva_res3 = e_res3.idx >= 12 ? e_res3.kva * res3 : e_res3.kva;
+
+        const kva_com1 = e_com1.idx >= 12 ? e_com1.kva * com1 : e_com1.kva;
+        const kva_com2 = e_com2.idx >= 12 ? e_com2.kva * com2 : e_com2.kva;
+        const kva_com3 = e_com3.idx >= 12 ? e_com3.kva * com3 : e_com3.kva;
+
+        const kva_ind1 = e_ind1.idx >= 12 ? e_ind1.kva * ind1 : e_ind1.kva;
+        const kva_ind2 = e_ind2.idx >= 12 ? e_ind2.kva * ind2 : e_ind2.kva;
+        const kva_ind3 = e_ind3.idx >= 12 ? e_ind3.kva * ind3 : e_ind3.kva;
+
+        // demanda simulada por tipo (usa fatores)
+        const dem_simulada_res1 = fator_res1 * kva_res1 * 1; // a multiplicação por qtd já aplicada em kva_res1 conforme regra
+        const dem_simulada_res2 = fator_res2 * kva_res2 * 1;
+        const dem_simulada_res3 = fator_res3 * kva_res3 * 1;
+
+        const dem_simulada_com1 = fator_com1 * kva_com1 * 1;
+        const dem_simulada_com2 = fator_com2 * kva_com2 * 1;
+        const dem_simulada_com3 = fator_com3 * kva_com3 * 1;
+
+        const dem_simulada_ind1 = fator_ind1 * kva_ind1 * 1;
+        const dem_simulada_ind2 = fator_ind2 * kva_ind2 * 1;
+        const dem_simulada_ind3 = fator_ind3 * kva_ind3 * 1;
+
+        // ajusta agregados (igual ao seu Python)
+        demComTot = demComTot / 0.82;
+        demi = demi / 0.55;
+
+        // somas finais com multiplicadores 0.6/0.8/0.9 (idem Python)
+        const dem_simulada_residencial =
+          (dem_simulada_res1 + dem_simulada_res2 + dem_simulada_res3) *
+            (parseFloat(document.getElementById("fator_res_manual").value) ||
+              0.6) +
+          (demResTot || 0);
+        const dem_simulada_comercial =
+          (dem_simulada_com1 + dem_simulada_com2 + dem_simulada_com3) *
+            (parseFloat(document.getElementById("fator_com_manual").value) ||
+              0.8) +
+          (demComTot || 0);
+        const dem_simulada_industrial =
+          (dem_simulada_ind1 + dem_simulada_ind2 + dem_simulada_ind3) *
+            (parseFloat(document.getElementById("fator_ind_manual").value) ||
+              0.9) +
+          (demi || 0);
+
+        const demTOT =
+          dem_simulada_residencial +
+          dem_simulada_comercial +
+          dem_simulada_industrial +
+          (ip_val || 0);
+
+        // curva horária (mesma multiplicação que Python - aplica perfis)
+        const curvares =
+          (dem_simulada_res1 +
+            dem_simulada_res2 +
+            dem_simulada_res3 +
+            (demResTot || 0)) *
+          consumidorRes;
+        const curvaCom =
+          (dem_simulada_com1 +
+            dem_simulada_com2 +
+            dem_simulada_com3 +
+            (demComTot || 0)) *
+          consumidorComerc;
+        const curvaInd =
+          (dem_simulada_ind1 +
+            dem_simulada_ind2 +
+            dem_simulada_ind3 +
+            (demi || 0)) *
+          consumidorIndustrial;
+
+        const curva_simulada = [];
+        for (let i = 0; i < Hora.length; i++) {
+          const v =
+            (curvares[i] || 0) + (curvaCom[i] || 0) + (curvaInd[i] || 0);
+          curva_simulada.push(v);
+        }
+
+        // limite transformador
+        let mult = tipo_TRF === 0 ? 1.5 : 0.9;
+        const label_pct = tipo_TRF === 0 ? "150%" : "90%";
+        const limite = pottr * mult;
+
+        // pico
+        const pico_total = Math.max(...curva_simulada);
+        const hora_pico = Hora[curva_simulada.indexOf(pico_total)];
+
+        // verificar limite municipal (usando lim_manual se presente)
+        let lim_Municipio;
+        if (!isNaN(lim_manual) && lim_manual > 0) {
+          lim_Municipio = lim_manual;
+        } else {
+          // simples default (o usuário optou por inserir lista depois)
+          lim_Municipio = zona === "urbana" ? 100 : 50;
+        }
+
+        // construir pares para texto (igual ao Python)
+        const pares = [
+          [res1, dres1],
+          [res2, dres2],
+          [res3, dres3],
+          [com1, dcom1],
+          [com2, dcom2],
+          [com3, dcom3],
+          [ind1, dind1],
+          [ind2, dind2],
+          [ind3, dind3],
+          [qtd_geral, disj_geral],
+        ];
+
+        // kva selecionados (para checar municipal)
+        const kva_selecionados = [];
+        for (const [qtd, disj] of pares) {
+          if (!disj || disj === "") continue;
+          const entry = getEntry(disj);
+          if (!entry || entry.idx === 0) continue;
+          const idx = entry.idx;
+          const kva_base = entry.kva;
+          const kva_valor = idx >= 12 ? kva_base * (qtd || 0) : kva_base;
+          kva_selecionados.push({ nome: disj, kva: kva_valor });
+        }
+
+        // decisão (mesma hierarquia que Python)
+        let textoCab = "";
+        const criarMedidas = {
+          carregamento: false,
+          planejamento: false,
+          liberacao: false,
+        };
+        if (pico_total > limite) {
+          textoCab =
+            "Carregamento máximo suportado pelo transformador excedido.\nPara este atendimento será necessário obra de reforço na rede.\n**********************************************";
+          criarMedidas.carregamento = true;
+        } else if (kva_selecionados.some((k) => k.kva > lim_Municipio)) {
+          textoCab =
+            "Necessário análise pela equipe de planejamento.\n**********************************************";
+          criarMedidas.planejamento = true;
+        } else {
+          textoCab =
+            "Rede liberada para conexão.\nNão será necessário obra de reforço na rede.\n**********************************************";
+          criarMedidas.liberacao = true;
+        }
+
+        // texto_disjuntores formatado
+        const texto_disjuntores = formatTextoDisjuntores(pares);
+
+        // texto resultado (parecido com sua versão)
+        const texto_resultado = `${textoCab}
+Pico de demanda: ${pico_total.toFixed(2)} kVA às ${hora_pico}
+Demanda simulada: ${demTOT.toFixed(2)} kVA
+Transformador: ${trafo || "(não informado)"} (${tipo_TRF === 0 ? "CONVENCIONAL" : "AUTOPROTEGIDO"}) [Limite ${label_pct} = ${limite.toFixed(1)} kVA]
+${texto_disjuntores}
+Coordenada: ${document.getElementById("utmc").value || ""}`;
+
+        // atualizar UI
+        document.getElementById("msg").innerText = texto_resultado;
+        document.getElementById("resumo_texto").innerText =
+          `Decisão: ${textoCab.split("\\n")[0]}
+Pico (horário): ${pico_total.toFixed(2)} kVA às ${hora_pico}
+Demanda simulada total (inclui IP): ${demTOT.toFixed(2)} kVA
+Limite trafo: ${limite.toFixed(2)} kVA
+Limite Municipal utilizado: ${lim_Municipio} kVA
+Disjuntores verificados (kVA):\n` +
+          kva_selecionados
+            .map((k) => ` - ${k.nome}: ${k.kva.toFixed(2)} kVA`)
+            .join("\n");
+
+        // plot
+        plotCurve(
+          Hora,
+          curva_simulada.map((v) => +v.toFixed(2)),
+          limite,
+        );
+
+        // salvar metadados ocultos (se quiser estender)
+        window._lastCalc = {
+          texto_resultado,
+          pico_total,
+          hora_pico,
+          demTOT,
+          criarMedidas,
+          kva_selecionados,
+          limite,
+          lim_Municipio,
+        };
+      }
+
+      /* ================== Gerar parecer técnico (modelo corporativo) ================== */
+      function gerarParecer() {
+        if (!window._lastCalc) {
+          alert("Primeiro execute Calcular para gerar o parecer técnico.");
+          return;
+        }
+        const meta = window._lastCalc;
+        const trafo =
+          document.getElementById("trafo").value || "(não informado)";
+        const part = document.getElementById("part").value || "";
+        const utmc = document.getElementById("utmc").value || "";
+        const polos = document.getElementById("polos").value || "";
+        const propTR = document.getElementById("propTR").value || "";
+
+        // Texto padrão corporativo (modelo)
+        const cabecalho = `PARECER TÉCNICO - SIMULAÇÃO DE CARGA
+Transformador: ${trafo}
+Ponto/Parte: ${part}
+Coordenada: ${utmc}
+Propriedade do transformador: ${propTR}
+Polos disponíveis: ${polos}
+
+Resumo Executivo:
+${meta.texto_resultado}
+
+Análise Técnica:
+- Pico de demanda simulado: ${meta.pico_total.toFixed(2)} kVA às ${meta.hora_pico}.
+- Demanda simulada total: ${meta.demTOT.toFixed(2)} kVA.
+- Limite do transformador considerado: ${meta.limite?.toFixed(2) ?? "N/A"} kVA.
+- Disjuntores com kVA maiores que o limite municipal (se houver):\n${
+          meta.kva_selecionados
+            .filter((k) => k.kva > (meta.lim_Municipio || 0))
+            .map((k) => `   • ${k.nome}: ${k.kva.toFixed(2)} kVA`)
+            .join("\n") || "   • Nenhum"
+        }
+
+Conclusão/Sugestão:
+${meta.texto_resultado.split("\\n")[0]}
+
+Observações:
+- Valores de IP e demandas pré-existentes foram incluídos conforme informado.
+- Fatores de diversidade aplicados conforme tabela técnica (A/B).
+- Para definição final do limite municipal insira o valor no campo 'Limite municipal' e reexecute o cálculo.
+
+Assinado,
+Equipe de Planejamento - Simulador Interno
+`;
+
+        // mostra em modal simples (nova janela) para copiar/imprimir
+        const w = window.open("", "_blank", "resizeable=yes,scrollbars=yes");
+        w.document.write(
+          '<pre style="font-family:Arial;padding:14px">' +
+            escapeHtml(cabecalho) +
+            "</pre>",
+        );
+        w.document.title = "Parecer Técnico - Simulação";
+      }
+
+      /* util escape HTML */
+      function escapeHtml(s) {
+        return (s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+    </script>
+  </body>
+</html>
