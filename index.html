@@ -10,9 +10,10 @@
 
     <style>
       :root {
-        --cemig-blue: #004aad;
-        --cemig-accent: #0060d6;
-        --muted: #6b7b94;
+        --cemig-blue: #008000;
+        --cemig-accent: #008000;
+        --black: #000000;
+        --muted: #000000;
         --bg: #f4f7fb;
         --card: #ffffff;
       }
@@ -48,9 +49,9 @@
         box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
       }
       h2 {
-        margin: 0 0 8px;
+        margin: 10 0 8px;
         font-size: 18px;
-        color: var(--cemig-blue);
+        color: var(--black);
       }
       p.lead {
         margin: 0;
@@ -59,7 +60,7 @@
       }
       .grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 14px;
         align-items: start;
       }
@@ -79,7 +80,7 @@
 
       label {
         font-size: 13px;
-        color: #324155;
+        color: #000000;
         display: block;
         margin-bottom: 6px;
         font-weight: 600;
@@ -91,10 +92,10 @@
         width: 100%;
         padding: 8px;
         border-radius: 8px;
-        border: 1px solid #dbe7ff;
-        background: #fbfdff;
+        border: 1px solid #000000;
+        background: #ffffff;
         font-size: 14px;
-        color: #122028;
+        color: #000000;
         box-sizing: border-box;
       }
       .small {
@@ -116,26 +117,26 @@
         border: 0;
         cursor: pointer;
         font-weight: 700;
-        box-shadow: 0 6px 18px rgba(0, 74, 173, 0.12);
+        box-shadow: 0 6px 18px lab(33.8% 21.3 -58.01 / 0.12);
       }
       button.secondary {
-        background: #eef5ff;
-        color: var(--cemig-blue);
+        background: var(--cemig-blue);
+        color: var(#fff);
         box-shadow: none;
-        border: 1px solid #d6e6ff;
+        border: 1px solid var(--cemig-blue);
       }
       .result {
         white-space: pre-line;
-        background: linear-gradient(180deg, #fbfdff, #f6fbff);
+        background: linear-gradient(180deg, #fff, #fff);
         padding: 12px;
         border-radius: 8px;
-        border: 1px solid #e6f0ff;
+        border: 1px solid #000000;
         margin-top: 12px;
-        color: #122028;
+        color: #000000;
       }
       .two-col {
         display: grid;
-        grid-template-columns: 1fr 360px;
+        grid-template-columns: 1fr 700px;
         gap: 18px;
       }
       canvas {
@@ -146,7 +147,7 @@
       .muted-note {
         font-size: 12px;
         color: var(--muted);
-        margin-top: 8px;
+        margin-top: 2px;
       }
       footer {
         font-size: 12px;
@@ -165,6 +166,23 @@
           width: 86px;
         }
       }
+      .three-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; /* três colunas */
+        gap: 18px;
+      }
+
+      @media (max-width: 1200px) {
+        .three-col {
+          grid-template-columns: 1fr 1fr; /* duas colunas em telas médias */
+        }
+      }
+
+      @media (max-width: 900px) {
+        .three-col {
+          grid-template-columns: 1fr; /* uma coluna em telas pequenas */
+        }
+      }
     </style>
   </head>
   <body>
@@ -173,283 +191,184 @@
     <div class="wrap">
       <!-- Top - Transformador / Meta -->
       <div class="card">
-        <h2>Transformador & Meta</h2>
-        <p class="lead">
-          Informe dados do transformador e comportamento desejado.
-        </p>
+        <h2>Dados do Transformador</h2>
+        <p class="lead">Informe dados do transformador.</p>
 
-        <div class="grid" style="margin-top: 12px">
+        <div class="three-col" style="margin-top: 4px">
           <div>
-            <label>Nome do Transformador</label>
-            <input id="trafo" type="text" placeholder="Ex: TRF-1234" />
-
-            <label style="margin-top: 10px"
-              >Potência do transformador (kVA)</label
-            >
-            <input id="pottr" type="number" value="100" step="1" />
-
-            <label style="margin-top: 10px">Tipo de Transformador</label>
-            <select id="tipo_TRF">
-              <option value="0">Convencional — limite 150%</option>
-              <option value="1">Autoprotegido — limite 90%</option>
-            </select>
-
-            <label style="margin-top: 10px"
-              >Zona (apenas para default lim. municipal)</label
-            >
-            <select id="zona">
-              <option value="urbana">Área Urbana</option>
-              <option value="rural">Área Rural</option>
-            </select>
-
-            <label style="margin-top: 10px"
-              >Limite municipal (kVA) — sobrescreve calculado</label
-            >
-            <input
-              id="lim_municipal"
-              type="number"
-              placeholder="Deixe vazio para usar padrão (100 / 50)"
-            />
-            <div class="small">
-              Se vazio: urbana → 100 kVA, rural → 50 kVA. Você pode alterar
-              manualmente.
-            </div>
+            <label>Transformador</label>
+            <input id="trafo" type="text" />
+            <label style="margin-top: 30px">Demanda residencial</label>
+            <input id="demResTot" type="number" value="" step="0.01" />
+            <label>Demanda comercial</label>
+            <input id="demComTot" type="number" value="" step="0.01" />
+            <label>Demanda industrial</label>
+            <input id="demi" type="number" value="" step="0.01" />
+            <label>Demanda rural</label>
+            <input id="ip_val" type="number" value="" step="0.01" />
+            <label>Demanda outros</label>
+            <input id="ip_val" type="number" value="" step="0.01" />
+            <label>Demanda Iluminação Pública</label>
+            <input id="ip_val" type="number" value="" step="0.01" />
           </div>
+
+          <div>
+            <label> Potência do transformador (kVA)</label>
+            <input id="pottr" type="number" value="" step="1" readonly />
+            <label style="margin-top: 30px"
+              >Quantidade de consumidores residenciais existentes</label
+            >
+            <input id="quantiResTot" type="number" value="" />
+            <label>Quantidade de consumidores comerciais existentes</label>
+            <input id="quantComTot" type="number" value="" />
+            <label>Quantidade de consumidores industriais existentes</label>
+            <input id="numcsi" type="number" value="" />
+            <label>Quantidade de consumidores rurais existentes</label>
+            <input id="quantComTot" type="number" value="" />
+            <label>Quantidade de consumidores outros existentes</label>
+            <input id="numcsi" type="number" value="" />
+          </div>
+
+          <div>
+            <label>Tipo de Transformador</label>
+            <select id="tipo_TRF">
+              <option value="">Convencional</option>
+              <option value="1">Autoprotegido</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Local de atendimento</h2>
+        <div class="three-col"></div>
+        <div>
+          <label style="margin-top: 10px">Zona</label>
+          <select id="zona">
+            <option value="urbana">Área Urbana</option>
+            <option value="rural">Área Rural</option>
+          </select>
+        </div>
+        <div>
+          <label style="margin-top: 10px">Município</label>
+          <select id="municipio">
+            <option value=""></option>
+          </select>
         </div>
       </div>
 
       <!-- Consumidores: Residencial / Comercial / Industrial -->
       <div class="card">
-        <h2>Novos Consumidores — Preencha por tipo</h2>
-        <p class="lead">
-          Para cada linha: informe <strong>Qtd</strong> e escolha o
-          <strong>Disjuntor</strong>.
-        </p>
-
-        <div class="two-col">
+        <h2>Novos Consumidores</h2>
+        <div class="three-col">
           <div>
-            <h3 style="color: var(--cemig-blue); margin: 0 0 8px">
-              Residencial
-            </h3>
-            <div class="muted-note">
-              Fatores residenciais aplicam tabela A até índice 13 (mesma lógica
-              Python)
-            </div>
-
-            <!-- 3 linhas residenciais -->
+            <label>Quantidade</label>
+            <input id="qtd_geral" type="number" value="" min="0" />
+          </div>
+          <div>
+            <label>Disjuntor Geral</label>
+            <select id="disj_geral"></select>
+          </div>
+        </div>
+        <div class="three-col">
+          <div>
+            <h3 style="color: var(--black); margin: 10 0 8px">Residencial</h3>
             <div style="margin-top: 10px">
               <div class="row">
                 <div>
-                  <label>Qtd (res1)</label>
-                  <input
-                    class="qtd"
-                    id="res1"
-                    type="number"
-                    value="0"
-                    min="0"
-                  />
+                  <label>Quantidade</label>
+                  <input class="qtd" id="res1" type="number" value="" min="0" />
                 </div>
                 <div class="dq">
-                  <label>Disjuntor (res1)</label>
+                  <label>Disjuntor</label>
                   <select id="dres1"></select>
                 </div>
               </div>
 
-              <div class="row" style="margin-top: 8px">
+              <div class="row" style="margin-top: 2px">
                 <div>
-                  <label>Qtd (res2)</label>
-                  <input
-                    class="qtd"
-                    id="res2"
-                    type="number"
-                    value="0"
-                    min="0"
-                  />
+                  <input class="qtd" id="res2" type="number" value="" min="0" />
                 </div>
                 <div class="dq">
-                  <label>Disjuntor (res2)</label>
                   <select id="dres2"></select>
                 </div>
               </div>
 
-              <div class="row" style="margin-top: 8px">
+              <div class="row" style="margin-top: 2px">
                 <div>
-                  <label>Qtd (res3)</label>
-                  <input
-                    class="qtd"
-                    id="res3"
-                    type="number"
-                    value="0"
-                    min="0"
-                  />
+                  <input class="qtd" id="res3" type="number" value="" min="0" />
                 </div>
                 <div class="dq">
-                  <label>Disjuntor (res3)</label>
                   <select id="dres3"></select>
                 </div>
               </div>
-
-              <div style="margin-top: 12px">
-                <label
-                  >Quantidade residencial agregada existente
-                  (quantiResTot)</label
-                >
-                <input id="quantiResTot" type="number" value="0" />
-              </div>
-
-              <div style="margin-top: 8px">
-                <label>Demanda residencial existente (demResTot) — kVA</label>
-                <input id="demResTot" type="number" value="0" step="0.01" />
-              </div>
             </div>
           </div>
-
           <div>
-            <h3 style="color: var(--cemig-blue); margin: 0 0 8px">Comercial</h3>
-            <div class="muted-note">
-              Fatores comerciais aplicam tabela A até índice 9 (mesma lógica
-              Python)
-            </div>
-
-            <!-- 3 linhas comerciais -->
+            <h3 style="color: var(--black); margin: 10 0 8px">Comercial</h3>
             <div style="margin-top: 10px">
               <div class="row">
                 <div>
-                  <label>Qtd (com1)</label>
-                  <input
-                    class="qtd"
-                    id="com1"
-                    type="number"
-                    value="0"
-                    min="0"
-                  />
+                  <label>Quantidade</label>
+                  <input class="qtd" id="com1" type="number" value="" min="0" />
                 </div>
                 <div class="dq">
-                  <label>Disjuntor (com1)</label>
+                  <label>Disjuntor</label>
                   <select id="dcom1"></select>
                 </div>
               </div>
 
-              <div class="row" style="margin-top: 8px">
+              <div class="row" style="margin-top: 2px">
                 <div>
-                  <label>Qtd (com2)</label>
-                  <input
-                    class="qtd"
-                    id="com2"
-                    type="number"
-                    value="0"
-                    min="0"
-                  />
+                  <input class="qtd" id="com2" type="number" value="" min="0" />
                 </div>
                 <div class="dq">
-                  <label>Disjuntor (com2)</label>
                   <select id="dcom2"></select>
                 </div>
               </div>
 
-              <div class="row" style="margin-top: 8px">
+              <div class="row" style="margin-top: 2px">
                 <div>
-                  <label>Qtd (com3)</label>
-                  <input
-                    class="qtd"
-                    id="com3"
-                    type="number"
-                    value="0"
-                    min="0"
-                  />
+                  <input class="qtd" id="com3" type="number" value="" min="0" />
                 </div>
                 <div class="dq">
-                  <label>Disjuntor (com3)</label>
                   <select id="dcom3"></select>
                 </div>
               </div>
-
-              <div style="margin-top: 12px">
-                <label
-                  >Quantidade comercial agregada existente (quantComTot)</label
-                >
-                <input id="quantComTot" type="number" value="0" />
+            </div>
+          </div>
+          <div>
+            <h3 style="color: var(--black); margin: 10 0 8px">Industrial</h3>
+            <div style="margin-top: 10px">
+              <div class="row">
+                <div>
+                  <label>Quantidade</label>
+                  <input class="qtd" id="ind1" type="number" value="" min="0" />
+                </div>
+                <div class="dq">
+                  <label>Disjuntor</label>
+                  <select id="dind1"></select>
+                </div>
               </div>
 
-              <div style="margin-top: 8px">
-                <label>Demanda comercial existente (demComTot) — kVA</label>
-                <input id="demComTot" type="number" value="0" step="0.01" />
+              <div class="row" style="margin-top: 2px">
+                <div>
+                  <input class="qtd" id="ind2" type="number" value="" min="0" />
+                </div>
+                <div class="dq">
+                  <select id="dind2"></select>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top: 2px">
+                <div>
+                  <input class="qtd" id="ind3" type="number" value="" min="0" />
+                </div>
+                <div class="dq">
+                  <select id="dind3"></select>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Industrial block -->
-        <div style="margin-top: 14px">
-          <h3 style="color: var(--cemig-blue); margin-bottom: 8px">
-            Industrial
-          </h3>
-
-          <div class="row">
-            <div>
-              <label>Qtd (ind1)</label>
-              <input class="qtd" id="ind1" type="number" value="0" min="0" />
-            </div>
-            <div class="dq">
-              <label>Disjuntor (ind1)</label>
-              <select id="dind1"></select>
-            </div>
-          </div>
-
-          <div class="row" style="margin-top: 8px">
-            <div>
-              <label>Qtd (ind2)</label>
-              <input class="qtd" id="ind2" type="number" value="0" min="0" />
-            </div>
-            <div class="dq">
-              <label>Disjuntor (ind2)</label>
-              <select id="dind2"></select>
-            </div>
-          </div>
-
-          <div class="row" style="margin-top: 8px">
-            <div>
-              <label>Qtd (ind3)</label>
-              <input class="qtd" id="ind3" type="number" value="0" min="0" />
-            </div>
-            <div class="dq">
-              <label>Disjuntor (ind3)</label>
-              <select id="dind3"></select>
-            </div>
-          </div>
-
-          <div style="margin-top: 12px">
-            <label>Demanda industrial existente (demi) — kVA</label>
-            <input id="demi" type="number" value="0" step="0.01" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Disjuntor Geral e IP -->
-      <div class="card">
-        <h2>Disjuntor Geral / Outros</h2>
-
-        <div style="display: flex; gap: 12px; flex-wrap: wrap">
-          <div style="flex: 1; min-width: 220px">
-            <label>Qtd Disjuntor Geral (qtd_geral)</label>
-            <input id="qtd_geral" type="number" value="0" min="0" />
-          </div>
-          <div style="flex: 2; min-width: 260px">
-            <label>Disjuntor Geral (disj_geral)</label>
-            <select id="disj_geral"></select>
-          </div>
-        </div>
-
-        <div
-          style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap"
-        >
-          <div style="flex: 1; min-width: 220px">
-            <label>IP — Iluminação Pública (kVA) — manual</label>
-            <input id="ip_val" type="number" value="0" step="0.01" />
-          </div>
-          <div style="flex: 1; min-width: 220px">
-            <label>Nº CSI / numcsi (opcional)</label>
-            <input id="numcsi" type="number" value="0" min="0" />
           </div>
         </div>
       </div>
@@ -459,33 +378,25 @@
         <h2>Parâmetros & Ações</h2>
         <div class="actions">
           <button id="btnCalc">Calcular</button>
-          <button id="btnParecer" class="secondary">
-            Gerar Parecer Técnico
-          </button>
           <button id="btnReset" class="secondary">Limpar</button>
         </div>
-
-        <div id="msg" class="result" style="margin-top: 12px"></div>
+        
       </div>
 
       <!-- Gráfico e resumo -->
-      <div class="card">
-        <h2>Curva Horária & Resultado</h2>
-        <div class="grid">
-          <div>
-            <canvas id="chart" height="200"></canvas>
-          </div>
-          <div>
-            <div class="result" id="resumo_texto">
-              Resultado aparecerá aqui.
-            </div>
-          </div>
-        </div>
-      </div>
+<div class="card">
+  <h2>Curva Horária & Resultado</h2>
+  <div class="two-col">
+    <div id="msg" class="result" style="margin-top: 12px"></div>
+    <div>
+      <canvas id="chart" height="200"></canvas>
+    </div>
+  </div>
+</div>
 
-      <footer>
-        Arquivo único HTML — pronto para GitHub Pages • Mantém lógica Python
-      </footer>
+
+
+      <footer>Simulador de Carga CEMIG - PE/EM</footer>
     </div>
 
     <script>
@@ -524,8 +435,900 @@
         ["TRI 1800 A", 30, 685.0],
         ["TRI 2100 A", 31, 800.0],
       ];
+      const municipios = [
+        "Abadia dos Dourados",
+        "Abaete",
+        "Abre Campo",
+        "Acaiaca",
+        "Acucena",
+        "Agua Boa",
+        "Agua Comprida",
+        "Aguanil",
+        "Aguas Formosas",
+        "Aguas Vermelhas",
+        "Aimores",
+        "Aiuruoca",
+        "Alagoa",
+        "Albertina",
+        "Alem Paraiba",
+        "Alfenas",
+        "Alfredo Vasconcelos",
+        "Almenara",
+        "Alpercata",
+        "Alpinopolis",
+        "Alterosa",
+        "Alto Caparao",
+        "Alto Jequitiba",
+        "Alto Rio Doce",
+        "Alvarenga",
+        "Alvinopolis",
+        "Alvorada de Minas",
+        "Amparo do Serra",
+        "Andradas",
+        "Andrelandia",
+        "Angelandia",
+        "Antônio Carlos",
+        "Antônio Dias",
+        "Antônio Prado de Minas",
+        "Aracai",
+        "Aracitaba",
+        "Aracuai",
+        "Araguari",
+        "Arantina",
+        "Araponga",
+        "Arapora",
+        "Arapua",
+        "Araujos",
+        "Araxa",
+        "Arceburgo",
+        "Arcos",
+        "Areado",
+        "Argirita",
+        "Aricanduva",
+        "Arinos",
+        "Astolfo Dutra",
+        "Ataleia",
+        "Augusto de Lima",
+        "Baependi",
+        "Baldim",
+        "Bambui",
+        "Bandeira",
+        "Bandeira do Sul",
+        "Barao de Cocais",
+        "Barao de Monte Alto",
+        "Barbacena",
+        "Barra Longa",
+        "Barroso",
+        "Bela Vista de Minas",
+        "Belmiro Braga",
+        "Belo Horizonte",
+        "Belo Oriente",
+        "Belo Vale",
+        "Berilo",
+        "Berizal",
+        "Bertopolis",
+        "Betim",
+        "Bias Fortes",
+        "Bicas",
+        "Biquinhas",
+        "Boa Esperanca",
+        "Bocaina de Minas",
+        "Bocaiuva",
+        "Bom Despacho",
+        "Bom Jardim de Minas",
+        "Bom Jesus da Penha",
+        "Bom Jesus do Amparo",
+        "Bom Jesus do Galho",
+        "Bom Repouso",
+        "Bom Sucesso",
+        "Bonfim",
+        "Bonfinopolis de Minas",
+        "Bonito de Minas",
+        "Borda da Mata",
+        "Botelhos",
+        "Botumirim",
+        "Bras Pires",
+        "Brasilandia de Minas",
+        "Brasilia de Minas",
+        "Brasopolis",
+        "Braunas",
+        "Brumadinho",
+        "Bueno Brandao",
+        "Buenopolis",
+        "Bugre",
+        "Buritis",
+        "Buritizeiro",
+        "Cabeceira Grande",
+        "Cabo Verde",
+        "Cachoeira da Prata",
+        "Cachoeira de Minas",
+        "Cachoeira de Pajeu",
+        "Cachoeira Dourada",
+        "Caetanopolis",
+        "Caete",
+        "Caiana",
+        "Cajuri",
+        "Caldas",
+        "Camacho",
+        "Camanducaia",
+        "Cambui",
+        "Cambuquira",
+        "Campanario",
+        "Campanha",
+        "Campestre",
+        "Campina Verde",
+        "Campo Azul",
+        "Campo Belo",
+        "Campo do Meio",
+        "Campo Florido",
+        "Campos Altos",
+        "Campos Gerais",
+        "Cana Verde",
+        "Canaa",
+        "Canapolis",
+        "Candeias",
+        "Cantagalo",
+        "Caparao",
+        "Capela Nova",
+        "Capelinha",
+        "Capetinga",
+        "Capim Branco",
+        "Capinopolis",
+        "Capitao Andrade",
+        "Capitao Eneas",
+        "Capitolio",
+        "Caputira",
+        "Carai",
+        "Caranaiba",
+        "Carandai",
+        "Carangola",
+        "Caratinga",
+        "Carbonita",
+        "Careacu",
+        "Carlos Chagas",
+        "Carmesia",
+        "Carmo da Cachoeira",
+        "Carmo da Mata",
+        "Carmo de Minas",
+        "Carmo do Cajuru",
+        "Carmo do Paranaiba",
+        "Carmo do Rio Claro",
+        "Carmopolis de Minas",
+        "Carneirinho",
+        "Carrancas",
+        "Carvalhopolis",
+        "Carvalhos",
+        "Casa Grande",
+        "Cascalho Rico",
+        "Cassia",
+        "Cataguases",
+        "Catas Altas",
+        "Catas Altas da Noruega",
+        "Catuji",
+        "Catuti",
+        "Caxambu",
+        "Cedro do Abaete",
+        "Central de Minas",
+        "Centralina",
+        "Chacara",
+        "Chale",
+        "Chapada do Norte",
+        "Chapada Gaucha",
+        "Chiador",
+        "Cipotanea",
+        "Claraval",
+        "Claro dos Pocoes",
+        "Claudio",
+        "Coimbra",
+        "Coluna",
+        "Comendador Gomes",
+        "Comercinho",
+        "Conceicao da Aparecida",
+        "Conceicao da Barra de Minas",
+        "Conceicao das Alagoas",
+        "Conceicao das Pedras",
+        "Conceicao de Ipanema",
+        "Conceicao do Mato Dentro",
+        "Conceicao do Para",
+        "Conceicao do Rio Verde",
+        "Conceicao dos Ouros",
+        "Cônego Marinho",
+        "Confins",
+        "Congonhal",
+        "Congonhas",
+        "Congonhas do Norte",
+        "Conquista",
+        "Conselheiro Lafaiete",
+        "Conselheiro Pena",
+        "Consolacao",
+        "Contagem",
+        "Coqueiral",
+        "Coracao de Jesus",
+        "Cordisburgo",
+        "Cordislandia",
+        "Corinto",
+        "Coroaci",
+        "Coromandel",
+        "Coronel Fabriciano",
+        "Coronel Murta",
+        "Coronel Pacheco",
+        "Coronel Xavier Chaves",
+        "Corrego Danta",
+        "Corrego do Bom Jesus",
+        "Corrego Fundo",
+        "Corrego Novo",
+        "Couto de Magalhaes de Minas",
+        "Crisolita",
+        "Cristais",
+        "Cristalia",
+        "Cristiano Otoni",
+        "Cristina",
+        "Crucilandia",
+        "Cruzeiro da Fortaleza",
+        "Cruzilia",
+        "Cuparaque",
+        "Curral de Dentro",
+        "Curvelo",
+        "Datas",
+        "Delfim Moreira",
+        "Delfinopolis",
+        "Delta",
+        "Descoberto",
+        "Desterro de Entre Rios",
+        "Desterro do Melo",
+        "Diamantina",
+        "Diogo de Vasconcelos",
+        "Dionisio",
+        "Divinesia",
+        "Divino",
+        "Divino das Laranjeiras",
+        "Divinolandia de Minas",
+        "Divinopolis",
+        "Divisa Alegre",
+        "Divisa Nova",
+        "Divisopolis",
+        "Dom Bosco",
+        "Dom Cavati",
+        "Dom Joaquim",
+        "Dom Silverio",
+        "Dom Vicoso",
+        "Dona Eusebia",
+        "Dores de Campos",
+        "Dores de Guanhaes",
+        "Dores do Indaia",
+        "Dores do Turvo",
+        "Doresopolis",
+        "Douradoquara",
+        "Durande",
+        "Eloi Mendes",
+        "Engenheiro Caldas",
+        "Engenheiro Navarro",
+        "Entre Folhas",
+        "Entre Rios de Minas",
+        "Ervalia",
+        "Esmeraldas",
+        "Espera Feliz",
+        "Espinosa",
+        "Espirito Santo do Douro",
+        "Estiva",
+        "Estrela Dalva",
+        "Estrela do Indaia",
+        "Estrela do Sul",
+        "Eugenopolis",
+        "Ewbank da Camara",
+        "Extrema",
+        "Fama",
+        "Faria Lemos",
+        "Felicio dos Santos",
+        "Felisburgo",
+        "Felixlandia",
+        "Fernandes Tourinho",
+        "Ferros",
+        "Fervedouro",
+        "Florestal",
+        "Formiga",
+        "Formoso",
+        "Fortaleza de Minas",
+        "Fortuna de Minas",
+        "Francisco Badaro",
+        "Francisco Dumont",
+        "Francisco Sa",
+        "Franciscopolis",
+        "Frei Gaspar",
+        "Frei Inocencio",
+        "Frei Lagonegro",
+        "Fronteira",
+        "Fronteira dos Vales",
+        "Fruta de Leite",
+        "Frutal",
+        "Funilandia",
+        "Galileia",
+        "Gameleiras",
+        "Glaucilandia",
+        "Goiabeira",
+        "Goiana",
+        "Goncalves",
+        "Gonzaga",
+        "Gouveia",
+        "Governador Valadares",
+        "Grao Mogol",
+        "Grupiara",
+        "Guanhaes",
+        "Guape",
+        "Guaraciaba",
+        "Guaraciama",
+        "Guaranesia",
+        "Guarani",
+        "Guarara",
+        "Guarda-Mor",
+        "Guaxupe",
+        "Guidoval",
+        "Guimarania",
+        "Guiricema",
+        "Gurinhata",
+        "Heliodora",
+        "Iapu",
+        "Ibertioga",
+        "Ibia",
+        "Ibiai",
+        "Ibiracatu",
+        "Ibiraci",
+        "Ibirite",
+        "Ibitiura de Minas",
+        "Ibituruna",
+        "Icarai de Minas",
+        "Igarape",
+        "Igaratinga",
+        "Iguatama",
+        "Ijaci",
+        "Ilicinea",
+        "Imbe de Minas",
+        "Inconfidentes",
+        "Indaiabira",
+        "Indianopolis",
+        "Ingai",
+        "Inhapim",
+        "Inhauma",
+        "Inimutaba",
+        "Ipaba",
+        "Ipanema",
+        "Ipatinga",
+        "Ipiacu",
+        "Ipuiuna",
+        "Irai de Minas",
+        "Itabira",
+        "Itabirinha",
+        "Itabirito",
+        "Itacambira",
+        "Itacarambi",
+        "Itaguara",
+        "Itaipe",
+        "Itajuba",
+        "Itamarandiba",
+        "Itamarati de Minas",
+        "Itambacuri",
+        "Itambe do Mato Dentro",
+        "Itamogi",
+        "Itamonte",
+        "Itanhandu",
+        "Itanhomi",
+        "Itaobim",
+        "Itapagipe",
+        "Itapecerica",
+        "Itapeva",
+        "Itatiaiucu",
+        "Itau de Minas",
+        "Itauna",
+        "Itaverava",
+        "Itinga",
+        "Itueta",
+        "Ituiutaba",
+        "Itumirim",
+        "Iturama",
+        "Itutinga",
+        "Jaboticatubas",
+        "Jacinto",
+        "Jacui",
+        "Jacutinga",
+        "Jaguaracu",
+        "Jaiba",
+        "Jampruca",
+        "Janauba",
+        "Januaria",
+        "Japaraiba",
+        "Japonvar",
+        "Jeceaba",
+        "Jenipapo de Minas",
+        "Jequeri",
+        "Jequitai",
+        "Jequitiba",
+        "Jequitinhonha",
+        "Jesuania",
+        "Joaima",
+        "Joanesia",
+        "Joao Monlevade",
+        "Joao Pinheiro",
+        "Joaquim Felicio",
+        "Jordania",
+        "Jose Goncalves de Minas",
+        "Jose Raydan",
+        "Josenopolis",
+        "Juatuba",
+        "Juiz de Fora",
+        "Juramento",
+        "Juruaia",
+        "Juvenilia",
+        "Ladainha",
+        "Lagamar",
+        "Lagoa da Prata",
+        "Lagoa dos Patos",
+        "Lagoa Dourada",
+        "Lagoa Formosa",
+        "Lagoa Grande",
+        "Lagoa Santa",
+        "Lajinha",
+        "Lambari",
+        "Lamim",
+        "Laranjal",
+        "Lassance",
+        "Lavras",
+        "Leandro Ferreira",
+        "Leme do Prado",
+        "Leopoldina",
+        "Liberdade",
+        "Lima Duarte",
+        "Limeira do Oeste",
+        "Lontra",
+        "Luisburgo",
+        "Luislandia",
+        "Luminarias",
+        "Luz",
+        "Machacalis",
+        "Machado",
+        "Madre de Deus de Minas",
+        "Malacacheta",
+        "Mamonas",
+        "Manga",
+        "Manhuacu",
+        "Manhumirim",
+        "Mantena",
+        "Mar de Espanha",
+        "Maravilhas",
+        "Maria da Fe",
+        "Mariana",
+        "Marilac",
+        "Mario Campos",
+        "Maripa de Minas",
+        "Marlieria",
+        "Marmelopolis",
+        "Martinho Campos",
+        "Martins Soares",
+        "Mata Verde",
+        "Materlandia",
+        "Mateus Leme",
+        "Mathias Lobato",
+        "Matias Barbosa",
+        "Matias Cardoso",
+        "Matipo",
+        "Mato Verde",
+        "Matozinhos",
+        "Matutina",
+        "Medeiros",
+        "Medina",
+        "Mendes Pimentel",
+        "Merces",
+        "Mesquita",
+        "Minas Novais",
+        "Minduri",
+        "Mirabela",
+        "Miradouro",
+        "Mirai",
+        "Miravania",
+        "Moeda",
+        "Moema",
+        "Monjolos",
+        "Monsenhor Paulo",
+        "Montalvania",
+        "Monte Alegre de Minas",
+        "Monte Azul",
+        "Monte Belo",
+        "Monte Carmelo",
+        "Monte Formoso",
+        "Monte Santo de Minas",
+        "Monte Siao",
+        "Montes Claros",
+        "Montezuma",
+        "Morada Nova de Minas",
+        "Morro da Garca",
+        "Morro do Pilar",
+        "Munhoz",
+        "Muriae",
+        "Mutum",
+        "Muzambinho",
+        "Nacip Raydan",
+        "Nanuque",
+        "Naque",
+        "Natalandia",
+        "Natercia",
+        "Nazareno",
+        "Nepomuceno",
+        "Ninheira",
+        "Nova Belem",
+        "Nova Era",
+        "Nova Lima",
+        "Nova Modica",
+        "Nova Ponte",
+        "Nova Porteirinha",
+        "Nova Resende",
+        "Nova Serrana",
+        "Nova Uniao",
+        "Novo Cruzeiro",
+        "Novo Oriente de Minas",
+        "Novorizonte",
+        "Olaria",
+        "Olhos-d'Agua",
+        "Olimpio Noronha",
+        "Oliveira",
+        "Oliveira Fortes",
+        "Onca de Pitangui",
+        "Oratorios",
+        "Orizania",
+        "Ouro Branco",
+        "Ouro Fino",
+        "Ouro Preto",
+        "Ouro Verde de Minas",
+        "Padre Carvalho",
+        "Padre Paraiso",
+        "Pai Pedro",
+        "Paineiras",
+        "Pains",
+        "Paiva",
+        "Palma",
+        "Palmopolis",
+        "Papagaios",
+        "Para de Minas",
+        "Paracatu",
+        "Paraguacu",
+        "Paraisopolis",
+        "Paraopeba",
+        "Passa Quatro",
+        "Passa Tempo",
+        "Passa-Vinte",
+        "Passabem",
+        "Passos",
+        "Patis",
+        "Patos de Minas",
+        "Patrocinio",
+        "Patrocinio do Muriae",
+        "Paula Candido",
+        "Paulistas",
+        "Pavao",
+        "Pecanha",
+        "Pedra Azul",
+        "Pedra Bonita",
+        "Pedra do Anta",
+        "Pedra do Indaia",
+        "Pedra Dourada",
+        "Pedralva",
+        "Pedras de Maria da Cruz",
+        "Pedrinopolis",
+        "Pedro Leopoldo",
+        "Pedro Teixeira",
+        "Pequeri",
+        "Pequi",
+        "Perdigao",
+        "Perdizes",
+        "Perdoes",
+        "Periquito",
+        "Pescador",
+        "Piau",
+        "Piedade de Caratinga",
+        "Piedade de Ponte Nova",
+        "Piedade do Rio Grande",
+        "Piedade dos Gerais",
+        "Pimenta",
+        "Pingo-d'Agua",
+        "Pintopolis",
+        "Piracema",
+        "Pirajuba",
+        "Piranga",
+        "Pirangucu",
+        "Piranguinho",
+        "Pirapetinga",
+        "Pirapora",
+        "Pirauba",
+        "Pitangui",
+        "Piumhi",
+        "Planura",
+        "Poco Fundo",
+        "Pocos de Caldas",
+        "Pocrane",
+        "Pompeu",
+        "Ponte Nova",
+        "Ponto Chique",
+        "Ponto dos Volantes",
+        "Porteirinha",
+        "Porto Firme",
+        "Pote",
+        "Pouso Alegre",
+        "Pouso Alto",
+        "Prados",
+        "Prata",
+        "Pratapolis",
+        "Pratinha",
+        "Presidente Bernardes",
+        "Presidente Juscelino",
+        "Presidente Kubitschek",
+        "Presidente Olegario",
+        "Prudente de Morais",
+        "Quartel Geral",
+        "Queluzito",
+        "Raposos",
+        "Raul Soares",
+        "Recreio",
+        "Reduto",
+        "Resende Costa",
+        "Resplendor",
+        "Ressaquinha",
+        "Riachinho",
+        "Riacho dos Machados",
+        "Ribeirao das Neves",
+        "Ribeirao Vermelho",
+        "Rio Acima",
+        "Rio Casca",
+        "Rio do Prado",
+        "Rio Doce",
+        "Rio Espera",
+        "Rio Manso",
+        "Rio Novo",
+        "Rio Paranaiba",
+        "Rio Pardo de Minas",
+        "Rio Piracicaba",
+        "Rio Pomba",
+        "Rio Preto",
+        "Rio Vermelho",
+        "Ritapolis",
+        "Rochedo de Minas",
+        "Rodeiro",
+        "Romaria",
+        "Rosario da Limeira",
+        "Rubelita",
+        "Rubim",
+        "Sabara",
+        "Sabinopolis",
+        "Sacramento",
+        "Salinas",
+        "Salto da Divisa",
+        "Santa Barbara",
+        "Santa Barbara do Leste",
+        "Santa Barbara do Monte Verde",
+        "Santa Barbara do Tugurio",
+        "Santa Cruz de Minas",
+        "Santa Cruz de Salinas",
+        "Santa Cruz do Escalvado",
+        "Santa Efigenia de Minas",
+        "Santa Fe de Minas",
+        "Santa Helena de Minas",
+        "Santa Juliana",
+        "Santa Luzia",
+        "Santa Margarida",
+        "Santa Maria de Itabira",
+        "Santa Maria do Salto",
+        "Santa Maria do Suacui",
+        "Santa Rita de Caldas",
+        "Santa Rita de Ibitipoca",
+        "Santa Rita de Jacutinga",
+        "Santa Rita de Minas",
+        "Santa Rita do Itueto",
+        "Santa Rita do Sapucai",
+        "Santa Rosa da Serra",
+        "Santa Vitoria",
+        "Santana da Vargem",
+        "Santana de Cataguases",
+        "Santana de Pirapama",
+        "Santana do Deserto",
+        "Santana do Garambeu",
+        "Santana do Jacare",
+        "Santana do Manhuacu",
+        "Santana do Paraiso",
+        "Santana do Riacho",
+        "Santana dos Montes",
+        "Santo Antônio do Amparo",
+        "Santo Antônio do Aventureiro",
+        "Santo Antônio do Grama",
+        "Santo Antônio do Itambe",
+        "Santo Antônio do Jacinto",
+        "Santo Antônio do Monte",
+        "Santo Antônio do Retiro",
+        "Santo Antônio do Rio Abaixo",
+        "Santo Hipolito",
+        "Santos Dumont",
+        "Sao Bento Abade",
+        "Sao Bras do Suacui",
+        "Sao Domingos das Dores",
+        "Sao Domingos do Prata",
+        "Sao Felix de Minas",
+        "Sao Francisco",
+        "Sao Francisco de Paula",
+        "Sao Francisco de Sales",
+        "Sao Francisco do Gloria",
+        "Sao Geraldo",
+        "Sao Geraldo da Piedade",
+        "Sao Geraldo do Baixio",
+        "Sao Goncalo do Abaete",
+        "Sao Goncalo do Para",
+        "Sao Goncalo do Rio Abaixo",
+        "Sao Goncalo do Rio Preto",
+        "Sao Goncalo do Sapucai",
+        "Sao Gotardo",
+        "Sao Joao Batista do Gloria",
+        "Sao Joao da Lagoa",
+        "Sao Joao da Mata",
+        "Sao Joao da Ponte",
+        "Sao Joao das Missoes",
+        "Sao Joao del Rei",
+        "Sao Joao do Manhuacu",
+        "Sao Joao do Manteninha",
+        "Sao Joao do Oriente",
+        "Sao Joao do Pacui",
+        "Sao Joao do Paraiso",
+        "Sao Joao Evangelista",
+        "Sao Joao Nepomuceno",
+        "Sao Joaquim de Bicas",
+        "Sao Jose da Barra",
+        "Sao Jose da Lapa",
+        "Sao Jose da Safira",
+        "Sao Jose da Varginha",
+        "Sao Jose do Alegre",
+        "Sao Jose do Divino",
+        "Sao Jose do Goiabal",
+        "Sao Jose do Jacuri",
+        "Sao Jose do Mantimento",
+        "Sao Lourenco",
+        "Sao Miguel do Anta",
+        "Sao Pedro da Uniao",
+        "Sao Pedro do Suacui",
+        "Sao Pedro dos Ferros",
+        "Sao Romao",
+        "Sao Roque de Minas",
+        "Sao Sebastiao da Bela Vista",
+        "Sao Sebastiao da Vargem Alegre",
+        "Sao Sebastiao do Anta",
+        "Sao Sebastiao do Maranhao",
+        "Sao Sebastiao do Oeste",
+        "Sao Sebastiao do Paraiso",
+        "Sao Sebastiao do Rio Preto",
+        "Sao Sebastiao do Rio Verde",
+        "Sao Thome das Letras",
+        "Sao Tiago",
+        "Sao Tomas de Aquino",
+        "Sao Vicente de Minas",
+        "Sapucai-Mirim",
+        "Sardoa",
+        "Sarzedo",
+        "Sem-Peixe",
+        "Senador Amaral",
+        "Senador Cortes",
+        "Senador Firmino",
+        "Senador Jose Bento",
+        "Senador Modestino Goncalves",
+        "Senhora de Oliveira",
+        "Senhora do Porto",
+        "Senhora dos Remedios",
+        "Sericita",
+        "Seritinga",
+        "Serra Azul de Minas",
+        "Serra da Saudade",
+        "Serra do Salitre",
+        "Serra dos Aimores",
+        "Serrania",
+        "Serranopolis de Minas",
+        "Serranos",
+        "Serro",
+        "Sete Lagoas",
+        "Setubinha",
+        "Silveirania",
+        "Silvianopolis",
+        "Simao Pereira",
+        "Simonesia",
+        "Sobralia",
+        "Soledade de Minas",
+        "Tabuleiro",
+        "Taiobeiras",
+        "Taparuba",
+        "Tapira",
+        "Tapirai",
+        "Taquaracu de Minas",
+        "Tarumirim",
+        "Teixeiras",
+        "Teofilo Otoni",
+        "Timoteo",
+        "Tiradentes",
+        "Tiros",
+        "Tocantins",
+        "Tocos do Moji",
+        "Toledo",
+        "Tombos",
+        "Tres Coracoes",
+        "Tres Marias",
+        "Tres Pontas",
+        "Tumiritinga",
+        "Tupaciguara",
+        "Turmalina",
+        "Turvolandia",
+        "Uba",
+        "Ubai",
+        "Ubaporanga",
+        "Uberaba",
+        "Uberlandia",
+        "Umburatiba",
+        "Unai",
+        "Uniao de Minas",
+        "Uruana de Minas",
+        "Urucania",
+        "Urucuia",
+        "Vargem Alegre",
+        "Vargem Bonita",
+        "Vargem Grande do Rio Pardo",
+        "Vargem",
+        "Varginha",
+        "Varjao de Minas",
+        "Varzea da Palma",
+        "Varzelandia",
+        "Vazante",
+        "Verdelandia",
+        "Veredinha",
+        "Verissimo",
+        "Vermelho Novo",
+        "Vespasiano",
+        "Vicosa",
+        "Vieiras",
+        "Virgem da Lapa",
+        "Virginia",
+        "Virginopolis",
+        "Virgolandia",
+        "Visconde do Rio Branco",
+        "Volta Grande",
+        "Wenceslau Braz",
+      ];
+      const CIDADE_100_25 = [
+        "Itapecerica",
+        "Pedra do Indaia",
+        "Sao Sebastiao do Oeste",
+      ];
+      const CIDADE_50_50 = [
+        "Tres Marias",
+        "Jequitai",
+        "Pirapora",
+        "Paracatu",
+        "Guarda-Mor",
+        "Patos de Minas",
+        "Monte Carmelo",
+        "Arinos",
+        "Bonfindopolis de Minas",
+        "Brasilandia de Minas",
+        "Buritis",
+        "Cabeceira Grande",
+        "Dom Bosco",
+        "Formoso",
+        "Joao Pinheiro",
+        "Natalandia",
+        "Riachinho",
+        "Santa Fe de Minas",
+        "Unai",
+        "Uruana de Minas",
+        "Urucuia",
+      ];
+      const DEMAIS = "";
 
-      // popular selects (res, com, ind, geral)
+      const select = document.getElementById("municipio");
+      municipios.forEach((mun) => {
+        const option = document.createElement("option");
+        option.value = mun.toLowerCase().replace(/\s+/g, "_");
+        option.textContent = mun;
+        select.appendChild(option);
+      });
+
       const selects = [
         "dres1",
         "dres2",
@@ -542,7 +1345,7 @@
         const el = document.getElementById(id);
         if (!el) continue;
         // empty option
-        el.innerHTML = '<option value="">-- nenhum --</option>';
+        el.innerHTML = '<option value=""></option>';
         DISJUNTORES.slice(1).forEach((d) => {
           const opt = document.createElement("option");
           opt.value = d[0];
@@ -757,6 +1560,17 @@
 
       /* ======================= Main calcular ======================= */
       document.getElementById("btnCalc").addEventListener("click", calcular);
+      document.getElementById("trafo").addEventListener("input", function () {
+        const valor = this.value;
+        const partes = valor.split("-");
+        if (partes.length === 3) {
+          const potencia = partes[2]; // XXX é a terceira parte
+          if (!isNaN(potencia)) {
+            document.getElementById("pottr").value = potencia;
+          }
+        }
+      });
+
       document.getElementById("btnReset").addEventListener("click", () => {
         document
           .querySelectorAll('input[type="number"]')
@@ -773,10 +1587,6 @@
         if (chart) chart.destroy();
       });
 
-      document
-        .getElementById("btnParecer")
-        .addEventListener("click", gerarParecer);
-
       function calcular() {
         // ler inputs (seguindo nomes do Python)
         const pottr = parseFloat(document.getElementById("pottr").value) || 0;
@@ -784,9 +1594,30 @@
           parseInt(document.getElementById("tipo_TRF").value) || 0;
         const trafo = (document.getElementById("trafo").value || "").trim();
         const zona = document.getElementById("zona").value;
-        const lim_manual = parseFloat(
-          document.getElementById("lim_municipal").value,
-        );
+
+        function verificarLimite(municipio, zona) {
+          municipio = municipio.trim();
+
+          if (CIDADE_100_25.includes(municipio) && zona === "rural") {
+            return { trifasico: 100, monofasico: 25 };
+          }
+
+          if (CIDADE_50_50.includes(municipio) && zona === "rural") {
+            return { trifasico: 50, monofasico: 50 };
+          }
+
+          // demais casos (urbano ou rural)
+          return { trifasico: 100, monofasico: 50 };
+        }
+
+        // exemplo de uso
+        const lim_manual = document
+          .getElementById("municipio")
+          .addEventListener("change", function () {
+            const municipio = this.value;
+            const zona = document.getElementById("zona").value; // supondo que exista um select para zona
+            const limites = verificarLimite(municipio, zona);
+          });
 
         // quantidades e nomes
         const res1 = parseInt(document.getElementById("res1").value) || 0;
@@ -1060,49 +1891,6 @@ Coordenada: `;
           limite,
           lim_Municipio,
         };
-      }
-
-      /* ================== Gerar parecer técnico (modelo corporativo) ================== */
-      function gerarParecer() {
-        if (!window._lastCalc) {
-          alert("Primeiro execute Calcular para gerar o parecer técnico.");
-          return;
-        }
-        const meta = window._lastCalc;
-        const trafo =
-          document.getElementById("trafo").value || "(não informado)";
-
-        // Texto padrão corporativo (modelo)
-        const cabecalho = `PARECER TÉCNICO - SIMULAÇÃO DE CARGA
-Transformador: ${trafo}
-
-Resumo Executivo:
-${meta.texto_resultado}
-
-Análise Técnica:
-- Pico de demanda simulado: ${meta.pico_total.toFixed(2)} kVA às ${meta.hora_pico}.
-- Demanda simulada total: ${meta.demTOT.toFixed(2)} kVA.
-- Limite do transformador considerado: ${meta.limite?.toFixed(2) ?? "N/A"} kVA.
-- Disjuntores com kVA maiores que o limite municipal (se houver):\n${
-          meta.kva_selecionados
-            .filter((k) => k.kva > (meta.lim_Municipio || 0))
-            .map((k) => `   • ${k.nome}: ${k.kva.toFixed(2)} kVA`)
-            .join("\n") || "   • Nenhum"
-        }
-
-Conclusão/Sugestão:
-${meta.texto_resultado.split("\\n")[0]}
-
-`;
-
-        // mostra em modal simples (nova janela) para copiar/imprimir
-        const w = window.open("", "_blank", "resizeable=yes,scrollbars=yes");
-        w.document.write(
-          '<pre style="font-family:Arial;padding:14px">' +
-            escapeHtml(cabecalho) +
-            "</pre>",
-        );
-        w.document.title = "Parecer Técnico - Simulação";
       }
 
       /* util escape HTML */
