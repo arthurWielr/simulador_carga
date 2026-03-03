@@ -10,7 +10,7 @@
 
     <style>
       :root {
-        --cemig-blue: #008000;
+        --cemig-blue: #004aad;
         --cemig-accent: #0060d6;
         --muted: #6b7b94;
         --bg: #f4f7fb;
@@ -181,17 +181,17 @@
         <div class="grid" style="margin-top: 12px">
           <div>
             <label>Nome do Transformador</label>
-            <input id="trafo" type="text"/>
+            <input id="trafo" type="text" placeholder="Ex: TRF-1234" />
 
             <label style="margin-top: 10px"
               >Potência do transformador (kVA)</label
             >
-            <input id="pottr" type="number" value="" step="1" />
+            <input id="pottr" type="number" value="100" step="1" />
 
             <label style="margin-top: 10px">Tipo de Transformador</label>
             <select id="tipo_TRF">
-              <option value="0">Convencional</option>
-              <option value="1">Autoprotegido</option>
+              <option value="0">Convencional — limite 150%</option>
+              <option value="1">Autoprotegido — limite 90%</option>
             </select>
 
             <label style="margin-top: 10px"
@@ -201,35 +201,18 @@
               <option value="urbana">Área Urbana</option>
               <option value="rural">Área Rural</option>
             </select>
-          </div>
 
-          <div>
-            <div style="margin-top: 12px">
-              <label
-                >Quantidade residencial agregada existente</label
-              >
-              <input id="quantiResTot" type="number" value="" />
-            </div>
-
-            <div style="margin-top: 8px">
-              <label>Demanda residencial existente</label>
-              <input id="demResTot" type="number" value="" step="0.01" />
-            </div>
-            <div style="margin-top: 12px">
-              <label
-                >Quantidade comercial agregada existente</label
-              >
-              <input id="quantComTot" type="number" value="" />
-            </div>
-
-            <div style="margin-top: 8px">
-              <label>Demanda comercial existente</label>
-              <input id="demComTot" type="number" value="" step="0.01" />
-            </div>
-
-            <div style="margin-top: 12px">
-              <label>Demanda industrial existente</label>
-              <input id="demi" type="number" value="" step="0.01" />
+            <label style="margin-top: 10px"
+              >Limite municipal (kVA) — sobrescreve calculado</label
+            >
+            <input
+              id="lim_municipal"
+              type="number"
+              placeholder="Deixe vazio para usar padrão (100 / 50)"
+            />
+            <div class="small">
+              Se vazio: urbana → 100 kVA, rural → 50 kVA. Você pode alterar
+              manualmente.
             </div>
           </div>
         </div>
@@ -237,8 +220,10 @@
 
       <!-- Consumidores: Residencial / Comercial / Industrial -->
       <div class="card">
-        <h2>Novos Consumidores</h2>
+        <h2>Novos Consumidores — Preencha por tipo</h2>
         <p class="lead">
+          Para cada linha: informe <strong>Qtd</strong> e escolha o
+          <strong>Disjuntor</strong>.
         </p>
 
         <div class="two-col">
@@ -247,6 +232,8 @@
               Residencial
             </h3>
             <div class="muted-note">
+              Fatores residenciais aplicam tabela A até índice 13 (mesma lógica
+              Python)
             </div>
 
             <!-- 3 linhas residenciais -->
@@ -258,7 +245,7 @@
                     class="qtd"
                     id="res1"
                     type="number"
-                    value=""
+                    value="0"
                     min="0"
                   />
                 </div>
@@ -275,7 +262,7 @@
                     class="qtd"
                     id="res2"
                     type="number"
-                    value=""
+                    value="0"
                     min="0"
                   />
                 </div>
@@ -292,7 +279,7 @@
                     class="qtd"
                     id="res3"
                     type="number"
-                    value=""
+                    value="0"
                     min="0"
                   />
                 </div>
@@ -301,12 +288,27 @@
                   <select id="dres3"></select>
                 </div>
               </div>
+
+              <div style="margin-top: 12px">
+                <label
+                  >Quantidade residencial agregada existente
+                  (quantiResTot)</label
+                >
+                <input id="quantiResTot" type="number" value="0" />
+              </div>
+
+              <div style="margin-top: 8px">
+                <label>Demanda residencial existente (demResTot) — kVA</label>
+                <input id="demResTot" type="number" value="0" step="0.01" />
+              </div>
             </div>
           </div>
 
           <div>
             <h3 style="color: var(--cemig-blue); margin: 0 0 8px">Comercial</h3>
             <div class="muted-note">
+              Fatores comerciais aplicam tabela A até índice 9 (mesma lógica
+              Python)
             </div>
 
             <!-- 3 linhas comerciais -->
@@ -318,7 +320,7 @@
                     class="qtd"
                     id="com1"
                     type="number"
-                    value=""
+                    value="0"
                     min="0"
                   />
                 </div>
@@ -335,7 +337,7 @@
                     class="qtd"
                     id="com2"
                     type="number"
-                    value=""
+                    value="0"
                     min="0"
                   />
                 </div>
@@ -352,7 +354,7 @@
                     class="qtd"
                     id="com3"
                     type="number"
-                    value=""
+                    value="0"
                     min="0"
                   />
                 </div>
@@ -360,6 +362,18 @@
                   <label>Disjuntor (com3)</label>
                   <select id="dcom3"></select>
                 </div>
+              </div>
+
+              <div style="margin-top: 12px">
+                <label
+                  >Quantidade comercial agregada existente (quantComTot)</label
+                >
+                <input id="quantComTot" type="number" value="0" />
+              </div>
+
+              <div style="margin-top: 8px">
+                <label>Demanda comercial existente (demComTot) — kVA</label>
+                <input id="demComTot" type="number" value="0" step="0.01" />
               </div>
             </div>
           </div>
@@ -374,7 +388,7 @@
           <div class="row">
             <div>
               <label>Qtd (ind1)</label>
-              <input class="qtd" id="ind1" type="number" value="" min="0" />
+              <input class="qtd" id="ind1" type="number" value="0" min="0" />
             </div>
             <div class="dq">
               <label>Disjuntor (ind1)</label>
@@ -385,7 +399,7 @@
           <div class="row" style="margin-top: 8px">
             <div>
               <label>Qtd (ind2)</label>
-              <input class="qtd" id="ind2" type="number" value="" min="0" />
+              <input class="qtd" id="ind2" type="number" value="0" min="0" />
             </div>
             <div class="dq">
               <label>Disjuntor (ind2)</label>
@@ -396,12 +410,17 @@
           <div class="row" style="margin-top: 8px">
             <div>
               <label>Qtd (ind3)</label>
-              <input class="qtd" id="ind3" type="number" value="" min="0" />
+              <input class="qtd" id="ind3" type="number" value="0" min="0" />
             </div>
             <div class="dq">
               <label>Disjuntor (ind3)</label>
               <select id="dind3"></select>
             </div>
+          </div>
+
+          <div style="margin-top: 12px">
+            <label>Demanda industrial existente (demi) — kVA</label>
+            <input id="demi" type="number" value="0" step="0.01" />
           </div>
         </div>
       </div>
@@ -413,7 +432,7 @@
         <div style="display: flex; gap: 12px; flex-wrap: wrap">
           <div style="flex: 1; min-width: 220px">
             <label>Qtd Disjuntor Geral (qtd_geral)</label>
-            <input id="qtd_geral" type="number" value="" min="0" />
+            <input id="qtd_geral" type="number" value="0" min="0" />
           </div>
           <div style="flex: 2; min-width: 260px">
             <label>Disjuntor Geral (disj_geral)</label>
@@ -426,13 +445,27 @@
         >
           <div style="flex: 1; min-width: 220px">
             <label>IP — Iluminação Pública (kVA) — manual</label>
-            <input id="ip_val" type="number" value="" step="0.01" />
+            <input id="ip_val" type="number" value="0" step="0.01" />
           </div>
           <div style="flex: 1; min-width: 220px">
             <label>Nº CSI / numcsi (opcional)</label>
-            <input id="numcsi" type="number" value="" min="0" />
+            <input id="numcsi" type="number" value="0" min="0" />
           </div>
         </div>
+      </div>
+
+      <!-- Ajustes e Botões -->
+      <div class="card">
+        <h2>Parâmetros & Ações</h2>
+        <div class="actions">
+          <button id="btnCalc">Calcular</button>
+          <button id="btnParecer" class="secondary">
+            Gerar Parecer Técnico
+          </button>
+          <button id="btnReset" class="secondary">Limpar</button>
+        </div>
+
+        <div id="msg" class="result" style="margin-top: 12px"></div>
       </div>
 
       <!-- Gráfico e resumo -->
@@ -444,6 +477,7 @@
           </div>
           <div>
             <div class="result" id="resumo_texto">
+              Resultado aparecerá aqui.
             </div>
           </div>
         </div>
@@ -508,7 +542,7 @@
         const el = document.getElementById(id);
         if (!el) continue;
         // empty option
-        el.innerHTML = '<option value=""></option>';
+        el.innerHTML = '<option value="">-- nenhum --</option>';
         DISJUNTORES.slice(1).forEach((d) => {
           const opt = document.createElement("option");
           opt.value = d[0];
@@ -887,19 +921,13 @@
 
         // somas finais com multiplicadores 0.6/0.8/0.9 (idem Python)
         const dem_simulada_residencial =
-          (dem_simulada_res1 + dem_simulada_res2 + dem_simulada_res3) *
-            (parseFloat(document.getElementById("fator_res_manual").value) ||
-              0.6) +
+          (dem_simulada_res1 + dem_simulada_res2 + dem_simulada_res3) * 0.6 +
           (demResTot || 0);
         const dem_simulada_comercial =
-          (dem_simulada_com1 + dem_simulada_com2 + dem_simulada_com3) *
-            (parseFloat(document.getElementById("fator_com_manual").value) ||
-              0.8) +
+          (dem_simulada_com1 + dem_simulada_com2 + dem_simulada_com3) * 0.8 +
           (demComTot || 0);
         const dem_simulada_industrial =
-          (dem_simulada_ind1 + dem_simulada_ind2 + dem_simulada_ind3) *
-            (parseFloat(document.getElementById("fator_ind_manual").value) ||
-              0.9) +
+          (dem_simulada_ind1 + dem_simulada_ind2 + dem_simulada_ind3) * 0.9 +
           (demi || 0);
 
         const demTOT =
@@ -1009,20 +1037,10 @@ Pico de demanda: ${pico_total.toFixed(2)} kVA às ${hora_pico}
 Demanda simulada: ${demTOT.toFixed(2)} kVA
 Transformador: ${trafo || "(não informado)"} (${tipo_TRF === 0 ? "CONVENCIONAL" : "AUTOPROTEGIDO"}) [Limite ${label_pct} = ${limite.toFixed(1)} kVA]
 ${texto_disjuntores}
-Coordenada: ${document.getElementById("utmc").value || ""}`;
+Coordenada: `;
 
         // atualizar UI
         document.getElementById("msg").innerText = texto_resultado;
-        document.getElementById("resumo_texto").innerText =
-          `Decisão: ${textoCab.split("\\n")[0]}
-Pico (horário): ${pico_total.toFixed(2)} kVA às ${hora_pico}
-Demanda simulada total (inclui IP): ${demTOT.toFixed(2)} kVA
-Limite trafo: ${limite.toFixed(2)} kVA
-Limite Municipal utilizado: ${lim_Municipio} kVA
-Disjuntores verificados (kVA):\n` +
-          kva_selecionados
-            .map((k) => ` - ${k.nome}: ${k.kva.toFixed(2)} kVA`)
-            .join("\n");
 
         // plot
         plotCurve(
@@ -1053,18 +1071,10 @@ Disjuntores verificados (kVA):\n` +
         const meta = window._lastCalc;
         const trafo =
           document.getElementById("trafo").value || "(não informado)";
-        const part = document.getElementById("part").value || "";
-        const utmc = document.getElementById("utmc").value || "";
-        const polos = document.getElementById("polos").value || "";
-        const propTR = document.getElementById("propTR").value || "";
 
         // Texto padrão corporativo (modelo)
         const cabecalho = `PARECER TÉCNICO - SIMULAÇÃO DE CARGA
 Transformador: ${trafo}
-Ponto/Parte: ${part}
-Coordenada: ${utmc}
-Propriedade do transformador: ${propTR}
-Polos disponíveis: ${polos}
 
 Resumo Executivo:
 ${meta.texto_resultado}
@@ -1083,13 +1093,6 @@ Análise Técnica:
 Conclusão/Sugestão:
 ${meta.texto_resultado.split("\\n")[0]}
 
-Observações:
-- Valores de IP e demandas pré-existentes foram incluídos conforme informado.
-- Fatores de diversidade aplicados conforme tabela técnica (A/B).
-- Para definição final do limite municipal insira o valor no campo 'Limite municipal' e reexecute o cálculo.
-
-Assinado,
-Equipe de Planejamento - Simulador Interno
 `;
 
         // mostra em modal simples (nova janela) para copiar/imprimir
