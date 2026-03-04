@@ -244,7 +244,13 @@
     </div>
     <!-- Botões fixos no canto superior esquerdo -->
     <div id="fixed-actions">
-      <button id="btnCalc" disabled title="Preencha a Zona e o Município para calcular">Calcular</button>
+      <button
+        id="btnCalc"
+        disabled
+        title="Preencha a Zona e o Município para calcular"
+      >
+        Calcular
+      </button>
       <button id="btnReset" class="secondary">Limpar</button>
     </div>
 
@@ -513,10 +519,10 @@
         <!-- Gráfico e resumo -->
         <div class="sidebar">
           <div class="card">
-            <h2>Curva Horária & Resultado</h2>
-            <div id="msg" class="result" style="margin-top: 12px"></div>
+            <h2>Resultado</h2>
+            <div id="msg" class="result" style="margin-top: 14px; margin-bottom: 20px;"></div>
             <div>
-              <canvas id="chart" height="200"></canvas>
+              <canvas id="chart" height="230"></canvas>
             </div>
           </div>
         </div>
@@ -532,13 +538,21 @@
       function atualizarBtnCalc() {
         const zona = document.getElementById("zona").value;
         const municipio = document.getElementById("municipio").value;
+        const trafo = document.getElementById("trafo").value;
         const btn = document.getElementById("btnCalc");
-        const ok = zona && municipio;
+        const ok = zona && municipio && trafo;
         btn.disabled = !ok;
         btn.title = ok ? "" : "Preencha a Zona e o Município para calcular";
       }
-      document.getElementById("zona").addEventListener("change", atualizarBtnCalc);
-      document.getElementById("municipio").addEventListener("change", atualizarBtnCalc);
+      document
+        .getElementById("zona")
+        .addEventListener("change", atualizarBtnCalc);
+      document
+        .getElementById("municipio")
+        .addEventListener("change", atualizarBtnCalc);
+      document
+        .getElementById("trafo")
+        .addEventListener("change", atualizarBtnCalc);
       const DISJUNTORES = [
         ["", 0, 0.0],
         ["A1/G1-MONO 40 A", 1, 5.0],
@@ -1571,6 +1585,9 @@
         "23:00",
         "00:00",
       ];
+      const ip = [
+        1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+      ];
       const consumidorRes = [
         0.39, 0.362, 0.363, 0.346, 0.351, 0.406, 0.469, 0.497, 0.553, 0.573,
         0.566, 0.631, 0.589, 0.604, 0.617, 0.611, 0.661, 0.717, 1.0, 0.902,
@@ -1647,14 +1664,14 @@
           "Disjuntor Comercial",
           "Disjuntor Industrial",
         ];
+        const [qtdg, disjg] = pares[9] || [0, ""];
+        if (qtdg && disjg) texto += `Disjuntor Geral: ${qtdg} x ${disjg}\n`;
         for (let i = 0; i < 9; i++) {
           const [qtd, disj] = pares[i] || [0, ""];
           if (!qtd || !disj) continue;
           let tipo = i < 3 ? tipos[0] : i < 6 ? tipos[1] : tipos[2];
-          texto += `${tipo}: ${qtd} x ${disj}\n`;
+          texto += `${tipo}: ${qtd} x ${disj}`;
         }
-        const [qtdg, disjg] = pares[9] || [0, ""];
-        if (qtdg && disjg) texto += `\nDisjuntor Geral: ${qtdg} x ${disjg}\n`;
         return texto;
       }
 
@@ -1662,7 +1679,26 @@
       let chart = null;
       function plotCurve(labels, dataArr, limite) {
         const ctx = document.getElementById("chart").getContext("2d");
+        const pottr = parseFloat(document.getElementById("pottr").value);
         if (chart) chart.destroy();
+
+        // Gradiente de preenchimento
+        const grad = ctx.createLinearGradient(0, 0, 0, 400);
+        grad.addColorStop(0, "rgba(0,128,0,0.35)");
+        grad.addColorStop(1, "rgba(0,128,0,0.01)");
+
+        // Pico
+        const pico = Math.max(...dataArr);
+        const picIdx = dataArr.indexOf(pico);
+
+        // Cores ponto a ponto: vermelho no pico
+        const pointColors = dataArr.map((v, i) =>
+          i === picIdx ? "#e53e3e" : "#008000",
+        );
+        const pointRadii = dataArr.map((v, i) => (i === picIdx ? 7 : 3));
+
+        // Porcentagem de carregamento por hora
+        const pctData = dataArr.map((v) => +((v / limite) * 150).toFixed(1));
 
         chart = new Chart(ctx, {
           type: "line",
@@ -1670,41 +1706,89 @@
             labels: labels,
             datasets: [
               {
-                label: "Curva simulada (kVA)",
+                label: "Demanda simulada (kVA)",
                 data: dataArr,
-                borderColor: "#008000", // verde institucional
-                backgroundColor: "rgba(0,128,0,0.1)", // preenchimento suave
-                fill: true, // área preenchida
-                tension: 0.3, // suaviza a curva
-                pointRadius: 4, // pontos mais visíveis
-                pointBackgroundColor: "#008000",
-                borderWidth: 2,
+                borderColor: "#008000",
+                backgroundColor: grad,
+                fill: true,
+                tension: 0.4,
+                pointRadius: pointRadii,
+                pointBackgroundColor: pointColors,
+                pointBorderColor: pointColors,
+                pointHoverRadius: 8,
+                borderWidth: 2.5,
+                yAxisID: "y",
+                order: 1,
               },
               {
-                label: "Limite transformador",
+                label: "Carregamento (%)",
+                data: pctData,
+                borderColor: "rgba(59,130,246,0.7)",
+                backgroundColor: "transparent",
+                fill: false,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5,
+                borderWidth: 1.5,
+                borderDash: [4, 3],
+                yAxisID: "y2",
+                order: 2,
+              },
+              {
+                label: `Limite trafo (${limite.toFixed(0)} kVA)`,
                 data: Array(labels.length).fill(limite),
-                borderColor: "#ff5959", // vermelho para destaque
-                borderDash: [6, 4],
+                borderColor: "#e53e3e",
+                backgroundColor: "rgb(255,255,255)",
+                fill: true,
+                borderDash: [8, 4],
                 pointRadius: 0,
                 borderWidth: 2,
+                yAxisID: "y",
+                order: 3,
               },
             ],
           },
           options: {
             responsive: true,
+            interaction: { mode: "index", intersect: false },
+            devicePixelRatio: 2,
             plugins: {
               legend: {
-                position: "bottom", // legenda mais discreta
+                position: "bottom",
                 labels: {
-                  font: { size: 12 },
+                  font: { size: 11 },
+                  usePointStyle: true,
+                  pointStyleWidth: 14,
+                  padding: 10,
                 },
               },
               tooltip: {
-                mode: "index",
-                intersect: false,
-                backgroundColor: "#333",
-                titleColor: "#fff",
-                bodyColor: "#fff",
+                backgroundColor: "rgba(20,30,20,0.88)",
+                titleColor: "#e2f0e2",
+                bodyColor: "#d1e8d1",
+                padding: 10,
+                cornerRadius: 8,
+                callbacks: {
+                  label: function (ctx) {
+                    if (ctx.datasetIndex === 0)
+                      return ` Demanda: ${ctx.parsed.y.toFixed(2)} kVA`;
+                    if (ctx.datasetIndex === 1)
+                      return ` Carregamento: ${ctx.parsed.y.toFixed(1)}%`;
+                    if (ctx.datasetIndex === 2)
+                      return ` Limite: ${ctx.parsed.y.toFixed(0)} kVA`;
+                  },
+                  afterBody: function (items) {
+                    const v = items[0]?.parsed.y;
+                    const pct = ((v / limite) * 100).toFixed(1);
+                    const status =
+                      v > limite
+                        ? "⚠ EXCEDIDO"
+                        : v > limite * 0.85
+                          ? "⚡ Atenção"
+                          : "✓ OK";
+                    return [``, `  ${status} — ${pct}% do limite`];
+                  },
+                },
               },
             },
             scales: {
@@ -1713,18 +1797,45 @@
                 title: {
                   display: true,
                   text: "Horário",
-                  font: { size: 13, weight: "bold" },
+                  font: { size: 14, weight: "600" },
+                  color: "#444",
                 },
-                grid: { color: "rgba(0,0,0,0.05)" },
+                grid: { color: "rgba(0,0,0,0.06)", drawTicks: false },
+                ticks: { font: { size: 14 }, maxRotation: 45 },
               },
               y: {
                 display: true,
+                position: "left",
                 title: {
                   display: true,
-                  text: "kVA",
-                  font: { size: 13, weight: "bold" },
+                  text: "Demanda (kVA)",
+                  font: { size: 14, weight: "600" },
+                  color: "#000000",
                 },
-                grid: { color: "rgba(0,0,0,0.05)" },
+                grid: { color: "rgba(0,0,0,0.06)" },
+                ticks: {
+                  font: { size: 14 },
+                  color: "#000000",
+                  callback: (v) => v.toFixed(0) + " kVA",
+                },
+              },
+              y2: {
+                display: true,
+                position: "right",
+                min: 0,
+                max: Math.max(...pctData, 150),
+                title: {
+                  display: true,
+                  text: "Carregamento (%)",
+                  font: { size: 14, weight: "600" },
+                  color: "#000000",
+                },
+                grid: { drawOnChartArea: false },
+                ticks: {
+                  font: { size: 14 },
+                  color: "#000000",
+                  callback: (v) => v + "%",
+                },
               },
             },
           },
@@ -1880,7 +1991,6 @@
           dummy_factor = 0.9;
         }
 
-        // nota: o Python faz factor * kva_value * dummy_factor * amount
         const demand_kva = factor * kva_value * dummy_factor * amountInt;
 
         return {
@@ -1894,7 +2004,6 @@
         };
       }
 
-      // --- 4) Usar computeItemDemand para todos os pares e somar corretamente
       const quantidadeDisjuntores =
         res1 +
         res2 +
@@ -1910,47 +2019,22 @@
         ind3 +
         uc_industrial +
         uc_outros;
-      const total_customers = quantidadeDisjuntores; // ou ajuste conforme sua definição de existing_amount
-      let dem_simulada_residencial_sum = 0;
-      let dem_simulada_comercial_sum = 0;
-      let dem_simulada_industrial_sum = 0;
+      const total_customers = quantidadeDisjuntores;
 
       // exemplo para residenciais
       const r1 = computeItemDemand(res1, dres1, "residencial", total_customers);
       const r2 = computeItemDemand(res2, dres2, "residencial", total_customers);
       const r3 = computeItemDemand(res3, dres3, "residencial", total_customers);
-      dem_simulada_residencial_sum =
-        r1.demand_kva +
-        r2.demand_kva +
-        r3.demand_kva +
-        (demanda_residencial || 0);
 
       // comerciais
       const c1 = computeItemDemand(com1, dcom1, "comercial", total_customers);
       const c2 = computeItemDemand(com2, dcom2, "comercial", total_customers);
       const c3 = computeItemDemand(com3, dcom3, "comercial", total_customers);
-      dem_simulada_comercial_sum =
-        c1.demand_kva +
-        c2.demand_kva +
-        c3.demand_kva +
-        (demanda_comercial || 0);
 
       // industriais
       const i1 = computeItemDemand(ind1, dind1, "industrial", total_customers);
       const i2 = computeItemDemand(ind2, dind2, "industrial", total_customers);
       const i3 = computeItemDemand(ind3, dind3, "industrial", total_customers);
-      dem_simulada_industrial_sum =
-        i1.demand_kva +
-        i2.demand_kva +
-        i3.demand_kva +
-        (demanda_industrial || 0);
-
-      // demTOT conforme Python (soma das categorias + iluminação)
-      const demTOT_fixed =
-        dem_simulada_residencial_sum +
-        dem_simulada_comercial_sum +
-        dem_simulada_industrial_sum +
-        (demanda_iluminação || 0);
 
       function calcular() {
         // ler inputs (seguindo nomes do Python)
@@ -2095,37 +2179,47 @@
           total_customers,
         );
         const dem_simulada_residencial =
-          r1.demand_kva +
-          r2.demand_kva +
-          r3.demand_kva +
-          (demanda_residencial || 0);
+          r1.demand_kva + r2.demand_kva + r3.demand_kva;
+
         const dem_simulada_comercial =
-          c1.demand_kva +
-          c2.demand_kva +
-          c3.demand_kva +
-          (demanda_comercial || 0);
+          c1.demand_kva + c2.demand_kva + c3.demand_kva;
+
         const dem_simulada_industrial =
-          i1.demand_kva +
-          i2.demand_kva +
-          i3.demand_kva +
-          (demanda_industrial || 0);
+          i1.demand_kva + i2.demand_kva + i3.demand_kva;
+
+        const dem_simulada =
+          dem_simulada_industrial +
+          dem_simulada_comercial +
+          dem_simulada_residencial;
+
         const demTOT =
           dem_simulada_residencial +
           dem_simulada_comercial +
           dem_simulada_industrial +
+          (demanda_industrial || 0) +
+          (demanda_comercial || 0) +
+          (demanda_residencial || 0) +
+          (demanda_outros || 0) +
+          (demanda_rural || 0) +
           (demanda_iluminação || 0);
 
-        const curvares = consumidorRes.map((v) => v * dem_simulada_residencial);
+        const curvares = consumidorRes.map(
+          (v) =>
+            v *
+            (dem_simulada_residencial + demanda_residencial + demanda_rural),
+        );
         const curvaCom = consumidorComerc.map(
-          (v) => v * dem_simulada_comercial,
+          (v) =>
+            v * (dem_simulada_comercial + demanda_comercial + demanda_outros),
         );
         const curvaInd = consumidorIndustrial.map(
-          (v) => v * dem_simulada_industrial,
+          (v) => v * (dem_simulada_industrial + demanda_industrial),
         );
+        const curva_ip = ip.map((v) => v * demanda_iluminação);
 
         const curva_simulada = [];
         for (let i = 0; i < Hora.length; i++) {
-          const v = curvares[i] + curvaCom[i] + curvaInd[i];
+          const v = curvares[i] + curvaCom[i] + curvaInd[i] + curva_ip[i];
           curva_simulada.push(v);
         }
 
@@ -2200,9 +2294,9 @@
         // texto resultado (parecido com sua versão)
         const texto_resultado = `${textoCab}
         Pico de demanda: ${pico_total.toFixed(2)} kVA às ${hora_pico}
-        Demanda simulada: ${demTOT.toFixed(2)} kVA
+        Demanda simulada: ${dem_simulada.toFixed(2)} kVA
         Transformador: ${trafo || "(não informado)"} (${tipo_TRF === 0 ? "Convencional" : "Autoprotegido"})
-        ${texto_disjuntores}`
+        ${texto_disjuntores}`;
 
         // atualizar UI
         document.getElementById("msg").innerText = texto_resultado;
