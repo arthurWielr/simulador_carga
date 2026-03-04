@@ -187,6 +187,26 @@
         text-align: center;
         padding: 12px 0;
       }
+      #fixed-actions {
+        position: fixed;
+        top: 60px;
+        left: 18px;
+        z-index: 1100;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      #fixed-actions button {
+        width: 130px;
+        padding: 10px 14px;
+        font-size: 13px;
+      }
+      #fixed-actions button:disabled {
+        background: #a0bfa0;
+        cursor: not-allowed;
+        box-shadow: none;
+        opacity: 0.65;
+      }
       @media (max-width: 900px) {
         .two-col {
           grid-template-columns: 1fr;
@@ -222,6 +242,12 @@
       Simulador de Carga
       <img src="logo.png" alt="Logo" />
     </div>
+    <!-- Botões fixos no canto superior esquerdo -->
+    <div id="fixed-actions">
+      <button id="btnCalc" disabled title="Preencha a Zona e o Município para calcular">Calcular</button>
+      <button id="btnReset" class="secondary">Limpar</button>
+    </div>
+
     <div class="page-layout">
       <div class="wrap">
         <!-- Top - Transformador / Meta -->
@@ -482,14 +508,7 @@
           </div>
         </div>
 
-        <!-- Ajustes e Botões -->
-        <div class="card">
-          <h2>Parâmetros & Ações</h2>
-          <div class="actions">
-            <button id="btnCalc">Calcular</button>
-            <button id="btnReset" class="secondary">Limpar</button>
-          </div>
-        </div>
+        <!-- Ajustes e Botões removidos daqui -->
 
         <!-- Gráfico e resumo -->
         <div class="sidebar">
@@ -508,6 +527,18 @@
 
     <script>
       /* ======================= Dados (31 disjuntores, fatores, perfis) ======================= */
+
+      // Habilitar/desabilitar botão Calcular conforme zona e município
+      function atualizarBtnCalc() {
+        const zona = document.getElementById("zona").value;
+        const municipio = document.getElementById("municipio").value;
+        const btn = document.getElementById("btnCalc");
+        const ok = zona && municipio;
+        btn.disabled = !ok;
+        btn.title = ok ? "" : "Preencha a Zona e o Município para calcular";
+      }
+      document.getElementById("zona").addEventListener("change", atualizarBtnCalc);
+      document.getElementById("municipio").addEventListener("change", atualizarBtnCalc);
       const DISJUNTORES = [
         ["", 0, 0.0],
         ["A1/G1-MONO 40 A", 1, 5.0],
@@ -1713,6 +1744,16 @@
         }
       });
 
+      // Auto-calcular ao alterar qualquer campo, se botão habilitado
+      document.querySelector(".wrap").addEventListener("change", function (e) {
+        const btn = document.getElementById("btnCalc");
+        if (!btn.disabled) calcular();
+      });
+      document.querySelector(".wrap").addEventListener("input", function (e) {
+        const btn = document.getElementById("btnCalc");
+        if (!btn.disabled) calcular();
+      });
+
       document.getElementById("btnReset").addEventListener("click", () => {
         document
           .querySelectorAll('input[type="number"]')
@@ -1724,9 +1765,10 @@
           .querySelectorAll("select")
           .forEach((s) => (s.selectedIndex = 0));
         document.getElementById("msg").innerText = "";
-        document.getElementById("resumo_texto").innerText =
-          "Resultado aparecerá aqui.";
+        const resumo = document.getElementById("resumo_texto");
+        if (resumo) resumo.innerText = "Resultado aparecerá aqui.";
         if (chart) chart.destroy();
+        atualizarBtnCalc();
       });
 
       // --- 1) Função para obter fator de diversidade (retorna [factor, key])
