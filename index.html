@@ -62,12 +62,12 @@
 
       .page-layout {
         display: grid;
-        grid-template-columns: 1fr 700px;
-        gap: 10px;
+        grid-template-columns: 1fr 600px;
+        gap: 5px;
         align-items: start;
         padding-top: 22px;
-        padding-left: 165px;
-        padding-right: 10px;
+        padding-left: 100px;
+        padding-right: 15px;
       }
 
       .card {
@@ -103,12 +103,13 @@
 
       /* Linha Qtd | Disjuntor (aparece como um row) */
       .row {
-        display: flex;
+        display: grid;
+        grid-template-columns: 50px 160px; /* Qtd. fixo, Disjuntor ocupa o restante */
         gap: 8px;
         align-items: center;
       }
       .row .qtd {
-        width: 100px;
+        width: 50px;
       }
       .row .dq {
         flex: 1;
@@ -202,7 +203,7 @@
         gap: 10px;
       }
       #fixed-actions button {
-        width: 130px;
+        width: 80px;
         padding: 10px 14px;
         font-size: 13px;
       }
@@ -220,7 +221,7 @@
           grid-template-columns: 1fr;
         }
         .row .qtd {
-          width: 86px;
+          width: 50px;
         }
       }
       .three-col {
@@ -264,8 +265,6 @@
         <!-- Top - Transformador / Meta -->
         <div class="card">
           <h2>Dados do Transformador</h2>
-          <p class="lead">Informe dados do transformador.</p>
-
           <div class="three-col" style="margin-top: 4px">
             <div>
               <label>Transformador</label>
@@ -308,16 +307,16 @@
               <label> Potência do transformador (kVA)</label>
               <input id="pottr" type="number" value="" step="1" readonly />
               <label style="margin-top: 30px"
-                >Quantidade de consumidores residenciais existentes</label
+                >Consumidores residenciais existentes</label
               >
               <input id="uc_residencial" type="number" value="" />
-              <label>Quantidade de consumidores comerciais existentes</label>
+              <label>Consumidores comerciais existentes</label>
               <input id="uc_comercial" type="number" value="" />
-              <label>Quantidade de consumidores industriais existentes</label>
+              <label>Consumidores industriais existentes</label>
               <input id="uc_industrial" type="number" value="" />
-              <label>Quantidade de consumidores rurais existentes</label>
+              <label>Consumidores rurais existentes</label>
               <input id="uc_rural" type="number" value="" />
-              <label>Quantidade de consumidores outros existentes</label>
+              <label>Consumidores outros existentes</label>
               <input id="uc_outros" type="number" value="" />
             </div>
 
@@ -354,8 +353,8 @@
           <h2>Novos Consumidores</h2>
           <div class="three-col">
             <div>
-              <label>Quantidade</label>
-              <input id="qtd_geral" type="number" value="" min="0" />
+              <label>Qtd.</label>
+              <input id="qtd_geral" type="number" value="" min="-999" />
             </div>
             <div>
               <label>Disjuntor Geral</label>
@@ -368,13 +367,13 @@
               <div style="margin-top: 10px">
                 <div class="row">
                   <div>
-                    <label>Quantidade</label>
+                    <label>Qtd.</label>
                     <input
                       class="qtd"
                       id="res1"
                       type="number"
                       value=""
-                      min="0"
+                      min="-999"
                     />
                   </div>
                   <div class="dq">
@@ -390,7 +389,7 @@
                       id="res2"
                       type="number"
                       value=""
-                      min="0"
+                      min="-999"
                     />
                   </div>
                   <div class="dq">
@@ -405,7 +404,7 @@
                       id="res3"
                       type="number"
                       value=""
-                      min="0"
+                      min="-999"
                     />
                   </div>
                   <div class="dq">
@@ -419,13 +418,13 @@
               <div style="margin-top: 10px">
                 <div class="row">
                   <div>
-                    <label>Quantidade</label>
+                    <label>Qtd.</label>
                     <input
                       class="qtd"
                       id="com1"
                       type="number"
                       value=""
-                      min="0"
+                      min="-999"
                     />
                   </div>
                   <div class="dq">
@@ -441,7 +440,7 @@
                       id="com2"
                       type="number"
                       value=""
-                      min="0"
+                      min="-999"
                     />
                   </div>
                   <div class="dq">
@@ -456,7 +455,7 @@
                       id="com3"
                       type="number"
                       value=""
-                      min="0"
+                      min="-999"
                     />
                   </div>
                   <div class="dq">
@@ -470,13 +469,13 @@
               <div style="margin-top: 10px">
                 <div class="row">
                   <div>
-                    <label>Quantidade</label>
+                    <label>Qtd.</label>
                     <input
                       class="qtd"
                       id="ind1"
                       type="number"
                       value=""
-                      min="0"
+                      min="-999"
                     />
                   </div>
                   <div class="dq">
@@ -492,7 +491,7 @@
                       id="ind2"
                       type="number"
                       value=""
-                      min="0"
+                      min="-999"
                     />
                   </div>
                   <div class="dq">
@@ -507,7 +506,7 @@
                       id="ind3"
                       type="number"
                       value=""
-                      min="0"
+                      min="-999"
                     />
                   </div>
                   <div class="dq">
@@ -1733,8 +1732,8 @@
                 label: "Demanda Atual (kVA)",
                 data: dataArr2,
                 borderColor: "#9f1ab9",
-                backgroundColor: "transparent",
-                fill: false,
+                backgroundColor: grad,
+                fill: true,
                 tension: 0.4,
                 pointRadius: 0,
                 pointHoverRadius: 5,
@@ -1825,7 +1824,12 @@
                   font: { size: 14, weight: "600" },
                   color: "#444",
                 },
-                grid: { color: "rgba(0,0,0,0.06)", drawTicks: false },
+                grid: {
+                  color: "rgba(0,0,0,0.05)",
+                  lineWidth: 1,
+                  borderDash: [4, 4],
+                  drawTicks: false,
+                },
                 ticks: { font: { size: 14 }, maxRotation: 45 },
               },
               y: {
@@ -1855,7 +1859,7 @@
                   font: { size: 14, weight: "600" },
                   color: "#000000",
                 },
-                grid: { drawOnChartArea: false },
+                grid: { drawOnChartArea: false, drawTicks: true },
                 ticks: {
                   font: { size: 14 },
                   color: "#000000",
@@ -1988,9 +1992,6 @@
         const base_kva = entry.kva || 0.0;
         const amountInt = parseInt(amount) || 0;
 
-        // regra: se idx >= 12, kVA escala pela quantidade; senão, usa unitário
-        const kva_value = idx >= 12 ? base_kva * amountInt : base_kva;
-
         // obter fator e chave
         const [factor, div_key] = get_fator_diversidade(
           idx,
@@ -2016,13 +2017,12 @@
           dummy_factor = 0.9;
         }
 
-        const demand_kva = factor * kva_value * dummy_factor * amountInt;
+        const demand_kva = factor * base_kva * dummy_factor * amountInt;
 
         return {
           amount: amountInt,
           idx,
           base_kva,
-          kva_value,
           factor,
           div_key,
           demand_kva,
@@ -2181,8 +2181,12 @@
         );
         const curva_ip = ip.map((v) => v * demanda_iluminação);
 
-        const curvaTOT = curvaResTotal.map((v, i) => v + curvaComTotal[i] + curvaIndTotal[i] + curva_ip[i]);
-        const curvaAtual = curvaResAtual.map((v, i) => v + curvaComAtual[i] + curvaIndAtual[i] + curva_ip[i]);
+        const curvaTOT = curvaResTotal.map(
+          (v, i) => v + curvaComTotal[i] + curvaIndTotal[i] + curva_ip[i],
+        );
+        const curvaAtual = curvaResAtual.map(
+          (v, i) => v + curvaComAtual[i] + curvaIndAtual[i] + curva_ip[i],
+        );
 
         const diff = curvaTOT.map((v, i) => v - curvaAtual[i]);
 
@@ -2212,7 +2216,10 @@
         const curva_atual = [];
         for (let i = 0; i < Hora.length; i++) {
           const v =
-            curvaResAtual[i] + curvaComAtual[i] + curvaIndAtual[i] + curva_ip[i];
+            curvaResAtual[i] +
+            curvaComAtual[i] +
+            curvaIndAtual[i] +
+            curva_ip[i];
           curva_atual.push(v);
         }
 
