@@ -14,7 +14,7 @@
         --cemig-accent: #008000;
         --black: #000000;
         --muted: #000000;
-        --bg: #f4f7fb;
+        --bg: #faf4fb;
         --card: #ffffff;
       }
       html,
@@ -528,13 +528,16 @@
       <div class="sidebar">
         <div class="card">
           <h2>Resultado</h2>
-          <div id="msg" class="result" style="margin-top: 14px; margin-bottom: 20px;"></div>
+          <div
+            id="msg"
+            class="result"
+            style="margin-top: 14px; margin-bottom: 20px"
+          ></div>
           <div>
             <canvas id="chart" height="230"></canvas>
           </div>
         </div>
       </div>
-
     </div>
 
     <script>
@@ -1676,14 +1679,14 @@
           const [qtd, disj] = pares[i] || [0, ""];
           if (!qtd || !disj) continue;
           let tipo = i < 3 ? tipos[0] : i < 6 ? tipos[1] : tipos[2];
-          texto += `${tipo}: ${qtd} x ${disj}`;
+          texto += `${tipo}: ${qtd} x ${disj}\n`;
         }
         return texto;
       }
 
       /* ========= Chart.js inicialização ========== */
       let chart = null;
-      function plotCurve(labels, dataArr, limite) {
+      function plotCurve(labels, dataArr, limite, dataArr2) {
         const ctx = document.getElementById("chart").getContext("2d");
         const pottr = parseFloat(document.getElementById("pottr").value);
         if (chart) chart.destroy();
@@ -1727,6 +1730,20 @@
                 order: 1,
               },
               {
+                label: "Demanda Atual (kVA)",
+                data: dataArr2,
+                borderColor: "#9f1ab9",
+                backgroundColor: "transparent",
+                fill: false,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5,
+                borderWidth: 1.5,
+                borderDash: [4, 3],
+                yAxisID: "y",
+                order: 2,
+              },
+              {
                 label: "Carregamento (%)",
                 data: pctData,
                 borderColor: "rgba(59,130,246,0.7)",
@@ -1738,7 +1755,7 @@
                 borderWidth: 1.5,
                 borderDash: [4, 3],
                 yAxisID: "y2",
-                order: 2,
+                order: 3,
               },
               {
                 label: `Limite trafo (${limite.toFixed(0)} kVA)`,
@@ -1750,7 +1767,7 @@
                 pointRadius: 0,
                 borderWidth: 2,
                 yAxisID: "y",
-                order: 3,
+                order: 4,
               },
             ],
           },
@@ -1777,10 +1794,12 @@
                 callbacks: {
                   label: function (ctx) {
                     if (ctx.datasetIndex === 0)
-                      return ` Demanda: ${ctx.parsed.y.toFixed(2)} kVA`;
+                      return ` Demanda simulada: ${ctx.parsed.y.toFixed(3)} kVA`;
                     if (ctx.datasetIndex === 1)
-                      return ` Carregamento: ${ctx.parsed.y.toFixed(1)}%`;
+                      return ` Demanda atual: ${ctx.parsed.y.toFixed(2)} kVA`;
                     if (ctx.datasetIndex === 2)
+                      return ` Carregamento: ${ctx.parsed.y.toFixed(1)}%`;
+                    if (ctx.datasetIndex === 3)
                       return ` Limite: ${ctx.parsed.y.toFixed(0)} kVA`;
                   },
                   afterBody: function (items) {
@@ -2010,38 +2029,6 @@
         };
       }
 
-      const quantidadeDisjuntores =
-        res1 +
-        res2 +
-        res3 +
-        uc_residencial +
-        uc_rural +
-        com1 +
-        com2 +
-        com3 +
-        uc_comercial +
-        ind1 +
-        ind2 +
-        ind3 +
-        uc_industrial +
-        uc_outros;
-      const total_customers = quantidadeDisjuntores;
-
-      // exemplo para residenciais
-      const r1 = computeItemDemand(res1, dres1, "residencial", total_customers);
-      const r2 = computeItemDemand(res2, dres2, "residencial", total_customers);
-      const r3 = computeItemDemand(res3, dres3, "residencial", total_customers);
-
-      // comerciais
-      const c1 = computeItemDemand(com1, dcom1, "comercial", total_customers);
-      const c2 = computeItemDemand(com2, dcom2, "comercial", total_customers);
-      const c3 = computeItemDemand(com3, dcom3, "comercial", total_customers);
-
-      // industriais
-      const i1 = computeItemDemand(ind1, dind1, "industrial", total_customers);
-      const i2 = computeItemDemand(ind2, dind2, "industrial", total_customers);
-      const i3 = computeItemDemand(ind3, dind3, "industrial", total_customers);
-
       function calcular() {
         // ler inputs (seguindo nomes do Python)
         const pottr = parseFloat(document.getElementById("pottr").value) || 0;
@@ -2127,7 +2114,7 @@
         let demanda_iluminação =
           parseFloat(document.getElementById("demanda_iluminação").value) || 0;
 
-        const quantidadeDisjuntores =
+        const total_customers =
           res1 +
           res2 +
           res3 +
@@ -2143,60 +2130,63 @@
           uc_industrial +
           uc_outros;
 
-        // total_customers segue a mesma lógica do Python
-        const total_customers = quantidadeDisjuntores;
-        const r1 = computeItemDemand(
-          res1,
-          dres1,
-          "residencial",
-          total_customers,
-        );
-        const r2 = computeItemDemand(
-          res2,
-          dres2,
-          "residencial",
-          total_customers,
-        );
-        const r3 = computeItemDemand(
-          res3,
-          dres3,
-          "residencial",
-          total_customers,
-        );
-        const c1 = computeItemDemand(com1, dcom1, "comercial", total_customers);
-        const c2 = computeItemDemand(com2, dcom2, "comercial", total_customers);
-        const c3 = computeItemDemand(com3, dcom3, "comercial", total_customers);
-        const i1 = computeItemDemand(
-          ind1,
-          dind1,
-          "industrial",
-          total_customers,
-        );
-        const i2 = computeItemDemand(
-          ind2,
-          dind2,
-          "industrial",
-          total_customers,
-        );
-        const i3 = computeItemDemand(
-          ind3,
-          dind3,
-          "industrial",
-          total_customers,
-        );
+        function safeCompute(a, b, tipo, total) {
+          return a && b ? computeItemDemand(a, b, tipo, total) : null;
+        }
+
+        const r1 = safeCompute(res1, dres1, "residencial", total_customers);
+        const r2 = safeCompute(res2, dres2, "residencial", total_customers);
+        const r3 = safeCompute(res3, dres3, "residencial", total_customers);
+
+        const c1 = safeCompute(com1, dcom1, "comercial", total_customers);
+        const c2 = safeCompute(com2, dcom2, "comercial", total_customers);
+        const c3 = safeCompute(com3, dcom3, "comercial", total_customers);
+
+        const i1 = safeCompute(ind1, dind1, "industrial", total_customers);
+        const i2 = safeCompute(ind2, dind2, "industrial", total_customers);
+        const i3 = safeCompute(ind3, dind3, "industrial", total_customers);
+
         const dem_simulada_residencial =
-          r1.demand_kva + r2.demand_kva + r3.demand_kva;
+          (r1?.demand_kva ?? 0) + (r2?.demand_kva ?? 0) + (r3?.demand_kva ?? 0);
 
         const dem_simulada_comercial =
-          c1.demand_kva + c2.demand_kva + c3.demand_kva;
+          (c1?.demand_kva ?? 0) + (c2?.demand_kva ?? 0) + (c3?.demand_kva ?? 0);
 
         const dem_simulada_industrial =
-          i1.demand_kva + i2.demand_kva + i3.demand_kva;
+          (i1?.demand_kva ?? 0) + (i2?.demand_kva ?? 0) + (i3?.demand_kva ?? 0);
 
-        const dem_simulada =
-          dem_simulada_industrial +
-          dem_simulada_comercial +
-          dem_simulada_residencial;
+        const curvaResTotal = consumidorRes.map(
+          (v) =>
+            v *
+            (dem_simulada_residencial + demanda_residencial + demanda_rural),
+        );
+        const curvaComTotal = consumidorComerc.map(
+          (v) =>
+            v *
+            (dem_simulada_comercial +
+              demanda_comercial / 0.82 +
+              demanda_outros / 0.82),
+        );
+        const curvaIndTotal = consumidorIndustrial.map(
+          (v) => v * (dem_simulada_industrial + demanda_industrial / 0.55),
+        );
+        const curvaResAtual = consumidorRes.map(
+          (v) => v * (demanda_residencial + demanda_rural),
+        );
+        const curvaComAtual = consumidorComerc.map(
+          (v) => v * (demanda_comercial / 0.82 + demanda_outros / 0.82),
+        );
+        const curvaIndAtual = consumidorIndustrial.map(
+          (v) => v * (demanda_industrial / 0.55),
+        );
+        const curva_ip = ip.map((v) => v * demanda_iluminação);
+
+        const curvaTOT = curvaResTotal.map((v, i) => v + curvaComTotal[i] + curvaIndTotal[i] + curva_ip[i]);
+        const curvaAtual = curvaResAtual.map((v, i) => v + curvaComAtual[i] + curvaIndAtual[i] + curva_ip[i]);
+
+        const diff = curvaTOT.map((v, i) => v - curvaAtual[i]);
+
+        const dem_simulada = Math.max(...diff);
 
         const demTOT =
           dem_simulada_residencial +
@@ -2209,24 +2199,21 @@
           (demanda_rural || 0) +
           (demanda_iluminação || 0);
 
-        const curvares = consumidorRes.map(
-          (v) =>
-            v *
-            (dem_simulada_residencial + demanda_residencial + demanda_rural),
-        );
-        const curvaCom = consumidorComerc.map(
-          (v) =>
-            v * (dem_simulada_comercial + demanda_comercial + demanda_outros),
-        );
-        const curvaInd = consumidorIndustrial.map(
-          (v) => v * (dem_simulada_industrial + demanda_industrial),
-        );
-        const curva_ip = ip.map((v) => v * demanda_iluminação);
-
         const curva_simulada = [];
         for (let i = 0; i < Hora.length; i++) {
-          const v = curvares[i] + curvaCom[i] + curvaInd[i] + curva_ip[i];
+          const v =
+            curvaResTotal[i] +
+            curvaComTotal[i] +
+            curvaIndTotal[i] +
+            curva_ip[i];
           curva_simulada.push(v);
+        }
+
+        const curva_atual = [];
+        for (let i = 0; i < Hora.length; i++) {
+          const v =
+            curvaResAtual[i] + curvaComAtual[i] + curvaIndAtual[i] + curva_ip[i];
+          curva_atual.push(v);
         }
 
         // limite transformador
@@ -2312,6 +2299,7 @@
           Hora,
           curva_simulada.map((v) => +v.toFixed(2)),
           limite,
+          curva_atual.map((v) => +v.toFixed(2)),
         );
 
         // salvar metadados ocultos (se quiser estender)
