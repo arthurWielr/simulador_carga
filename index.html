@@ -307,16 +307,16 @@
               <label> Potência do transformador (kVA)</label>
               <input id="pottr" type="number" value="" step="1" readonly />
               <label style="margin-top: 30px"
-                >Consumidores residenciais existentes</label
+                >Consumidores residenciais</label
               >
               <input id="uc_residencial" type="number" value="" />
-              <label>Consumidores comerciais existentes</label>
+              <label>Consumidores comerciais</label>
               <input id="uc_comercial" type="number" value="" />
-              <label>Consumidores industriais existentes</label>
+              <label>Consumidores industriais</label>
               <input id="uc_industrial" type="number" value="" />
-              <label>Consumidores rurais existentes</label>
+              <label>Consumidores rurais</label>
               <input id="uc_rural" type="number" value="" />
-              <label>Consumidores outros existentes</label>
+              <label>Consumidores outros</label>
               <input id="uc_outros" type="number" value="" />
             </div>
 
@@ -2288,6 +2288,8 @@
           criarMedidas.liberacao = true;
         }
 
+        const loadingpct = (pico_total/pottr) * 100
+
         // texto_disjuntores formatado
         const texto_disjuntores = formatTextoDisjuntores(pares);
 
@@ -2296,6 +2298,7 @@
         Pico de demanda: ${pico_total.toFixed(2)} kVA às ${hora_pico}
         Demanda simulada: ${dem_simulada.toFixed(2)} kVA
         Transformador: ${trafo || "(não informado)"} (${tipo_TRF === 0 ? "Convencional" : "Autoprotegido"})
+        Carregamento: ${loadingpct.toFixed(2)}%
         ${texto_disjuntores}`;
 
         // atualizar UI
